@@ -298,7 +298,7 @@
         </div>
     </div>
 
-    <div class="overlay" id="startOverlay">
+    <div class="overlay visible" id="startOverlay">
         <p class="overlay-title">Typing Test</p>
         <p class="overlay-label">Test your typing speed</p>
         <button class="overlay-btn" id="startBtn">Start</button>
@@ -702,6 +702,7 @@
         startBtn.addEventListener('click', () => {
             audio.init();
             startOverlay.classList.add('hidden');
+            startOverlay.classList.remove('visible');
             typingInput.focus();
             startGame();
         });

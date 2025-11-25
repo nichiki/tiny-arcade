@@ -73,7 +73,7 @@
         <span class="nav-title">Maze</span>
     </nav>
 
-    <div class="overlay" id="start-overlay">
+    <div class="overlay visible" id="start-overlay">
         <h1 class="start-title">Maze</h1>
         <p class="start-hint">Arrow keys or WASD to move</p>
         <button class="start-btn" id="start-btn">Press to Start</button>
@@ -557,6 +557,7 @@
         startBtn.addEventListener('click', () => {
             audio.init();
             startOverlay.classList.add('hidden');
+            startOverlay.classList.remove('visible');
             gameStarted = true;
             initGame();
         });
