@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="../css/common.css">
     <style>
         :root {
             --paddle: #1a1a1a;
@@ -60,7 +60,7 @@
     <canvas id="particles"></canvas>
 
     <nav class="nav-header">
-        <a href="index.html" class="nav-back">
+        <a href="../index.html" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -69,10 +69,11 @@
         <span class="nav-title">Breakout</span>
     </nav>
 
-    <div class="start-overlay" id="start-overlay">
+    <div class="start-overlay visible" id="start-overlay">
         <h1 class="start-title">Breakout</h1>
-        <p class="start-hint">Mouse (auto-locks) or ← → / A D keys to move</p>
+        <p class="start-hint">Mouse or ← → / A D keys to move</p>
         <button class="start-btn" id="start-btn">Press to Start</button>
+        <p class="start-key-hint">Space or Enter to start</p>
     </div>
 
     <div class="container">
@@ -125,9 +126,9 @@
         </div>
     </div>
 
-    <script src="js/audio.js"></script>
-    <script src="js/particles.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/particles.js"></script>
+    <script src="../js/utils.js"></script>
     <script>
         // ============================================
         // AUDIO EXTENSIONS (Game-specific)
@@ -562,22 +563,44 @@
             paddleX = Math.max(0, Math.min(canvas.width - paddleWidth, paddleX));
         }
 
-        document.getElementById('start-btn').addEventListener('click', () => {
+        const startOverlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
+        const gameOverOverlay = document.getElementById('game-over');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Space/Enter to start from overlay
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                if (startOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    startBtn.click();
+                    return;
+                }
+                if (gameOver && gameOverOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    restartBtn.click();
+                    return;
+                }
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
             audio.init();
-            document.getElementById('start-overlay').classList.add('hidden');
+            startOverlay.classList.add('hidden');
+            startOverlay.classList.remove('visible');
             gameStarted = true;
             initGame();
             update();
         });
 
         document.getElementById('new-game').addEventListener('click', () => {
-            document.getElementById('game-over').classList.remove('visible');
+            gameOverOverlay.classList.remove('visible');
             initGame();
             update();
         });
 
-        document.getElementById('restart-btn').addEventListener('click', () => {
-            document.getElementById('game-over').classList.remove('visible');
+        restartBtn.addEventListener('click', () => {
+            gameOverOverlay.classList.remove('visible');
             initGame();
             update();
         });

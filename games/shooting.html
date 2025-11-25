@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shooting - Tiny Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="../css/common.css">
     <style>
         /* Game-specific styles */
         canvas {
@@ -36,7 +36,7 @@
     <canvas id="particles"></canvas>
 
     <nav class="nav-header">
-        <a href="index.html" class="nav-back">
+        <a href="../index.html" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -45,10 +45,11 @@
         <span class="nav-title">Shooting</span>
     </nav>
 
-    <div class="overlay" id="start-overlay">
+    <div class="start-overlay visible" id="start-overlay">
         <h1 class="start-title">Shooting</h1>
         <p class="start-hint">Arrow keys / WASD to move, Space to shoot</p>
         <button class="start-btn" id="start-btn">Press to Start</button>
+        <p class="start-key-hint">Space or Enter to start</p>
     </div>
 
     <div class="container">
@@ -102,9 +103,9 @@
         <p class="overlay-hint">Press Enter or Space</p>
     </div>
 
-    <script src="js/audio.js"></script>
-    <script src="js/particles.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/particles.js"></script>
+    <script src="../js/utils.js"></script>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -543,6 +544,7 @@
             finalScoreEl.textContent = score;
             finalWaveEl.textContent = wave;
             gameOverOverlay.classList.remove('hidden');
+            gameOverOverlay.classList.add('visible');
         }
 
         function draw() {
@@ -690,16 +692,16 @@
         document.addEventListener('keydown', (e) => {
             keys[e.code] = true;
 
-            // Handle Enter/Space for restart
+            // Handle Enter/Space for start and restart
             if (e.code === 'Enter' || e.code === 'Space') {
-                if (gameState === 'gameOver' && !gameOverOverlay.classList.contains('hidden')) {
-                    e.preventDefault();
-                    restartBtn.click();
-                    return;
-                }
-                if (gameState === 'start' && !startOverlay.classList.contains('hidden')) {
+                if (startOverlay.classList.contains('visible')) {
                     e.preventDefault();
                     startBtn.click();
+                    return;
+                }
+                if (gameState === 'gameOver' && gameOverOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    restartBtn.click();
                     return;
                 }
             }
@@ -716,6 +718,7 @@
         startBtn.addEventListener('click', () => {
             audio.init();
             startOverlay.classList.add('hidden');
+            startOverlay.classList.remove('visible');
             resetGame();
             gameState = 'playing';
             startWave();
@@ -723,6 +726,7 @@
 
         restartBtn.addEventListener('click', () => {
             gameOverOverlay.classList.add('hidden');
+            gameOverOverlay.classList.remove('visible');
             resetGame();
             gameState = 'playing';
             startWave();
@@ -731,7 +735,9 @@
         newGameBtn.addEventListener('click', () => {
             audio.init();
             startOverlay.classList.add('hidden');
+            startOverlay.classList.remove('visible');
             gameOverOverlay.classList.add('hidden');
+            gameOverOverlay.classList.remove('visible');
             resetGame();
             gameState = 'playing';
             startWave();
@@ -744,7 +750,7 @@
             audio.init();
             touchX = e.touches[0].clientX;
             keys['Space'] = true;
-        });
+        }, { passive: false });
 
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
@@ -752,7 +758,7 @@
             const dx = newTouchX - touchX;
             player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x + dx));
             touchX = newTouchX;
-        });
+        }, { passive: false });
 
         canvas.addEventListener('touchend', () => {
             keys['Space'] = false;

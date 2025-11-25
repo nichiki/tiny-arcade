@@ -5,18 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maze - Tiny Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="../css/common.css">
     <style>
         :root {
-            --bg: #faf9f7;
-            --surface: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #8a8a8a;
-            --text-tertiary: #c0c0c0;
-            --border: #e8e6e3;
-            --accent: #7eb88a;
-            --accent-dark: #5a9a68;
-            --goal: #d4a574;
+            --maze-player: #7eb88a;
+            --maze-player-dark: #5a9a68;
+            --maze-goal: #d4a574;
         }
 
 
@@ -64,7 +58,7 @@
     <canvas id="particles"></canvas>
 
     <nav class="nav-header">
-        <a href="index.html" class="nav-back">
+        <a href="../index.html" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -73,10 +67,11 @@
         <span class="nav-title">Maze</span>
     </nav>
 
-    <div class="overlay visible" id="start-overlay">
+    <div class="start-overlay visible" id="start-overlay">
         <h1 class="start-title">Maze</h1>
         <p class="start-hint">Arrow keys or WASD to move</p>
         <button class="start-btn" id="start-btn">Press to Start</button>
+        <p class="start-key-hint">Space or Enter to start</p>
     </div>
 
     <div class="container">
@@ -135,9 +130,9 @@
         <p class="overlay-hint">Press Enter or Space</p>
     </div>
 
-    <script src="js/utils.js"></script>
-    <script src="js/audio.js"></script>
-    <script src="js/particles.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/particles.js"></script>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -318,6 +313,7 @@
                         resultMovesEl.textContent = moves;
                         setTimeout(() => {
                             winOverlay.classList.remove('hidden');
+                            winOverlay.classList.add('visible');
                         }, 300);
                     }
 
@@ -461,16 +457,16 @@
 
         // Event listeners
         document.addEventListener('keydown', (e) => {
-            // Handle Enter/Space key for next level
+            // Handle Enter/Space key for start and next level
             if (e.key === 'Enter' || e.key === ' ') {
-                if (gameWon && !winOverlay.classList.contains('hidden')) {
-                    e.preventDefault();
-                    nextBtn.click();
-                    return;
-                }
-                if (!startOverlay.classList.contains('hidden')) {
+                if (startOverlay.classList.contains('visible')) {
                     e.preventDefault();
                     startBtn.click();
+                    return;
+                }
+                if (gameWon && winOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    nextBtn.click();
                     return;
                 }
             }
@@ -570,6 +566,7 @@
 
         nextBtn.addEventListener('click', () => {
             winOverlay.classList.add('hidden');
+            winOverlay.classList.remove('visible');
             level++;
             levelEl.textContent = level;
             levelInlineEl.textContent = level;

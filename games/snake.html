@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="../css/common.css">
     <style>
         /* Game-specific variables */
         :root {
@@ -43,7 +43,7 @@
 
     <!-- Navigation Header -->
     <nav class="nav-header">
-        <a href="index.html" class="nav-back">
+        <a href="../index.html" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -52,10 +52,11 @@
         <span class="nav-title">Snake</span>
     </nav>
 
-    <div class="start-overlay" id="start-overlay">
+    <div class="start-overlay visible" id="start-overlay">
         <h1 class="start-title">Snake</h1>
         <p class="start-hint">Use arrow keys or WASD to move</p>
         <button class="start-btn" id="start-btn">Press to Start</button>
+        <p class="start-key-hint">Space or Enter to start</p>
     </div>
 
     <div class="container">
@@ -122,9 +123,9 @@
         </div>
     </div>
 
-    <script src="js/audio.js"></script>
-    <script src="js/particles.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/particles.js"></script>
+    <script src="../js/utils.js"></script>
     <script>
         // ============================================
         // GAME CONSTANTS
@@ -274,13 +275,30 @@
         // ============================================
         // RENDERING
         // ============================================
-        function draw() {
+        let lastTime = 0;
+
+        function draw(timestamp = 0) {
+            // Smooth animation timing
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
             // Clear
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw grid
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.03)';
+            // Draw grid with alternating stripes for better visibility
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    // Checkerboard pattern with very subtle colors
+                    if ((x + y) % 2 === 0) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+                        ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.lineWidth = 1;
 
             for (let i = 0; i <= GRID_SIZE; i++) {
@@ -295,28 +313,34 @@
                 ctx.stroke();
             }
 
-            // Draw food with pulse effect
-            foodPulse += 0.1;
-            const pulse = 1 + Math.sin(foodPulse) * 0.1;
+            // Draw food with smooth pulse effect (time-based, not frame-based)
+            foodPulse = timestamp * 0.003; // Smooth time-based animation
+            const pulse = 1 + Math.sin(foodPulse) * 0.15;
 
-            // Food glow
+            // Food glow (pulsing)
+            const glowSize = CELL_SIZE * (1.2 + Math.sin(foodPulse) * 0.3);
+            const glowAlpha = 0.25 + Math.sin(foodPulse) * 0.1;
             const gradient = ctx.createRadialGradient(
                 food.x * CELL_SIZE + CELL_SIZE / 2,
                 food.y * CELL_SIZE + CELL_SIZE / 2,
                 0,
                 food.x * CELL_SIZE + CELL_SIZE / 2,
                 food.y * CELL_SIZE + CELL_SIZE / 2,
-                CELL_SIZE * 1.5
+                glowSize
             );
-            gradient.addColorStop(0, 'rgba(212, 144, 138, 0.3)');
+            gradient.addColorStop(0, `rgba(212, 144, 138, ${glowAlpha})`);
+            gradient.addColorStop(0.5, `rgba(212, 144, 138, ${glowAlpha * 0.5})`);
             gradient.addColorStop(1, 'transparent');
             ctx.fillStyle = gradient;
-            ctx.fillRect(
-                food.x * CELL_SIZE - CELL_SIZE,
-                food.y * CELL_SIZE - CELL_SIZE,
-                CELL_SIZE * 3,
-                CELL_SIZE * 3
+            ctx.beginPath();
+            ctx.arc(
+                food.x * CELL_SIZE + CELL_SIZE / 2,
+                food.y * CELL_SIZE + CELL_SIZE / 2,
+                glowSize,
+                0,
+                Math.PI * 2
             );
+            ctx.fill();
 
             // Food
             ctx.fillStyle = '#d4908a';
@@ -459,9 +483,31 @@
             });
         });
 
-        document.getElementById('start-btn').addEventListener('click', () => {
+        const startOverlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
+        const gameOverOverlay = document.getElementById('game-over');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Space/Enter to start from overlay
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                if (startOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    startBtn.click();
+                    return;
+                }
+                if (gameOver && gameOverOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    restartBtn.click();
+                    return;
+                }
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
             audio.init();
-            document.getElementById('start-overlay').classList.add('hidden');
+            startOverlay.classList.add('hidden');
+            startOverlay.classList.remove('visible');
             gameStarted = true;
             initGame();
             draw();
@@ -478,9 +524,9 @@
             }
         });
 
-        document.getElementById('restart-btn').addEventListener('click', () => {
+        restartBtn.addEventListener('click', () => {
             clearInterval(gameInterval);
-            document.getElementById('game-over').classList.remove('visible');
+            gameOverOverlay.classList.remove('visible');
             initGame();
             draw();
             gameInterval = setInterval(update, SPEEDS[speed]);

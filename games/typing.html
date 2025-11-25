@@ -4,19 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing - Tiny Arcade</title>
-    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="../css/common.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #faf9f7;
-            --surface: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #8a8a8a;
-            --text-tertiary: #c0c0c0;
-            --border: #e8e6e3;
-            --accent: #7eb88a;
+            --typing-accent: #7eb88a;
             --error: #d4908a;
         }
 
@@ -47,7 +41,7 @@
 
         .progress-fill {
             height: 100%;
-            background: var(--accent);
+            background: var(--typing-accent);
             border-radius: 2px;
             transition: width 0.3s ease;
         }
@@ -69,7 +63,7 @@
         }
 
         .word .typed {
-            color: var(--accent);
+            color: var(--typing-accent);
         }
 
         .word .current {
@@ -98,10 +92,12 @@
             background: var(--bg);
             color: var(--text-primary);
             transition: border-color 0.2s ease;
+            ime-mode: disabled;
+            -webkit-ime-mode: disabled;
         }
 
         #typingInput:focus {
-            border-color: var(--accent);
+            border-color: var(--typing-accent);
         }
 
         #typingInput.error {
@@ -144,8 +140,9 @@
         }
 
         .time-btn.active {
-            border-color: var(--accent);
-            color: var(--text-primary);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+            color: var(--surface);
         }
 
         .time-btn:hover {
@@ -230,7 +227,7 @@
     <canvas id="particles"></canvas>
 
     <nav class="nav-header">
-        <a href="index.html" class="nav-back">
+        <a href="../index.html" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -254,7 +251,7 @@
                     <div class="word" id="wordDisplay"></div>
                 </div>
 
-                <input type="text" id="typingInput" placeholder="Type here..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+                <input type="text" id="typingInput" placeholder="Type here..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="done" lang="en" data-form-type="other">
                 <p class="input-hint">Press Enter to submit word</p>
             </div>
         </div>
@@ -298,10 +295,11 @@
         </div>
     </div>
 
-    <div class="overlay visible" id="startOverlay">
-        <p class="overlay-title">Typing Test</p>
-        <p class="overlay-label">Test your typing speed</p>
-        <button class="overlay-btn" id="startBtn">Start</button>
+    <div class="start-overlay visible" id="startOverlay">
+        <h1 class="start-title">Typing Test</h1>
+        <p class="start-hint">Test your typing speed</p>
+        <button class="start-btn" id="startBtn">Press to Start</button>
+        <p class="start-key-hint">Space or Enter to start</p>
     </div>
 
     <div class="overlay hidden" id="resultOverlay">
@@ -326,9 +324,9 @@
 
     <div class="particles" id="particlesContainer"></div>
 
-    <script src="js/utils.js"></script>
-    <script src="js/audio.js"></script>
-    <script src="js/particles.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/particles.js"></script>
     <script>
         // Extended words list
         const words = [
@@ -699,6 +697,22 @@
             });
         });
 
+        // Space/Enter to start from overlay
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                if (startOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    startBtn.click();
+                    return;
+                }
+                if (resultOverlay.classList.contains('visible')) {
+                    e.preventDefault();
+                    retryBtn.click();
+                    return;
+                }
+            }
+        });
+
         startBtn.addEventListener('click', () => {
             audio.init();
             startOverlay.classList.add('hidden');
@@ -720,6 +734,42 @@
             resetGame();
             startGame();
         });
+
+        // Prevent IME - aggressive approach for Chrome
+        let lastValidValue = '';
+        let isComposing = false;
+
+        typingInput.addEventListener('compositionstart', () => {
+            isComposing = true;
+        });
+
+        typingInput.addEventListener('compositionend', () => {
+            isComposing = false;
+            // Immediately revert to last valid ASCII-only value
+            typingInput.value = lastValidValue;
+            updateWordDisplay();
+        });
+
+        // Filter non-ASCII on every input
+        typingInput.addEventListener('beforeinput', (e) => {
+            // Allow only ASCII characters
+            if (e.data && /[^\x00-\x7F]/.test(e.data)) {
+                e.preventDefault();
+            }
+        });
+
+        // Backup: clean on input event as well
+        const originalInputHandler = typingInput.oninput;
+        typingInput.addEventListener('input', () => {
+            if (!isComposing) {
+                // Remove any non-ASCII characters
+                const cleaned = typingInput.value.replace(/[^\x00-\x7F]/g, '');
+                if (cleaned !== typingInput.value) {
+                    typingInput.value = cleaned;
+                }
+                lastValidValue = typingInput.value;
+            }
+        }, true);
 
         // Initialize
         wordQueue = generateWords(25);
