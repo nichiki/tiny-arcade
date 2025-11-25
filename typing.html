@@ -633,6 +633,7 @@
             }
 
             resultOverlay.classList.remove('hidden');
+            resultOverlay.classList.add('visible');
         }
 
         function resetGame() {
@@ -685,12 +686,6 @@
                     submitWord();
                 }
             }
-
-            if (!gameStarted && e.key !== 'Tab' && e.key !== 'Enter') {
-                audio.init();
-                startOverlay.classList.add('hidden');
-                startGame();
-            }
         });
 
         timeBtns.forEach(btn => {
@@ -713,12 +708,14 @@
 
         resetBtn.addEventListener('click', () => {
             resultOverlay.classList.add('hidden');
+            resultOverlay.classList.remove('visible');
             resetGame();
             typingInput.focus();
         });
 
         retryBtn.addEventListener('click', () => {
             resultOverlay.classList.add('hidden');
+            resultOverlay.classList.remove('visible');
             resetGame();
             startGame();
         });

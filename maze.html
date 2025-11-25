@@ -555,14 +555,14 @@
         });
 
         startBtn.addEventListener('click', () => {
-            initAudioContext();
+            audio.init();
             startOverlay.classList.add('hidden');
             gameStarted = true;
             initGame();
         });
 
         newMazeBtn.addEventListener('click', () => {
-            initAudioContext();
+            audio.init();
             stopMoving();
             initGame();
         });
@@ -583,7 +583,7 @@
         canvas.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-        });
+        }, { passive: true });
 
         canvas.addEventListener('touchend', (e) => {
             if (!gameStarted) return;

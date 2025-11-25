@@ -251,7 +251,9 @@
         const brickHeight = 18;
         const brickPadding = 6;
         const brickOffsetTop = 40;
-        const brickOffsetLeft = 20;
+        // Center the bricks horizontally
+        const totalBricksWidth = brickColCount * brickWidth + (brickColCount - 1) * brickPadding;
+        const brickOffsetLeft = (canvas.width - totalBricksWidth) / 2;
 
         let bricks = [];
         let score = 0;

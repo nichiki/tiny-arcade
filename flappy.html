@@ -549,7 +549,7 @@
         }
 
         // Event listeners
-        function handleInput(e) {
+        function handleClick(e) {
             e.preventDefault();
             audio.init();
 
@@ -558,8 +558,17 @@
             }
         }
 
-        canvas.addEventListener('click', handleInput);
-        canvas.addEventListener('touchstart', handleInput);
+        function handleTouch(e) {
+            // Don't preventDefault to allow passive listener
+            audio.init();
+
+            if (gameState === 'playing') {
+                flap();
+            }
+        }
+
+        canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('touchstart', handleTouch, { passive: true });
 
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {

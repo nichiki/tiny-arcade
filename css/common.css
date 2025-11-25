@@ -352,6 +352,11 @@ body {
     visibility: visible;
 }
 
+.overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
 .overlay-content {
     text-align: center;
 }
