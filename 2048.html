@@ -3,26 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2048</title>
+    <title>2048 - Tiny Arcade</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* 2048 specific color variables */
         :root {
-            --bg: #faf9f7;
-            --surface: #ffffff;
             --board-bg: #cdc1b4;
             --cell-empty: #d6cec4;
-            --text-primary: #1a1a1a;
-            --text-secondary: #8a8a8a;
-            --text-tertiary: #c0c0c0;
-            --border: #e8e6e3;
 
             /* Tile colors - warm, sophisticated palette */
             --tile-2: #eee4da;
@@ -42,58 +32,7 @@
             --text-dark: #f9f6f2;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            -webkit-font-smoothing: antialiased;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            gap: 4rem;
-            align-items: flex-start;
-            position: relative;
-            z-index: 1;
-        }
-
-        .game-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            width: 100%;
-            margin-bottom: 1.5rem;
-            padding: 0 0.25rem;
-        }
-
-        .title {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .score-inline {
-            font-size: 0.875rem;
-            font-weight: 400;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-        }
-
+        /* 2048 Board specific styling */
         .board-container {
             background: var(--board-bg);
             border-radius: 6px;
@@ -101,6 +40,7 @@
             box-shadow:
                 0 4px 12px rgba(0, 0, 0, 0.08),
                 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: none; /* override common.css */
         }
 
         .board {
@@ -172,64 +112,6 @@
         .tile-2048 { background: var(--tile-2048); color: var(--text-dark); font-size: 1.5rem; box-shadow: 0 0 40px 15px rgba(243, 215, 116, 0.8); }
         .tile-super { background: var(--tile-super); color: var(--text-dark); font-size: 1.25rem; }
 
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 2.5rem;
-            min-width: 140px;
-        }
-
-        .panel-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .panel-label {
-            font-size: 0.625rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
-        }
-
-        .score-display {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .score-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-        }
-
-        .score-label {
-            font-size: 0.625rem;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .score-value {
-            font-size: 1.5rem;
-            font-weight: 300;
-            font-variant-numeric: tabular-nums;
-            transition: transform 0.15s ease;
-        }
-
-        .score-value.bump {
-            transform: scale(1.15);
-        }
-
-        .best-value {
-            font-size: 1rem;
-            font-weight: 400;
-            color: var(--text-secondary);
-            font-variant-numeric: tabular-nums;
-        }
-
         .how-to-play {
             font-size: 0.625rem;
             color: var(--text-tertiary);
@@ -242,96 +124,9 @@
         }
 
         .new-game-btn {
-            font-family: inherit;
-            font-size: 0.625rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 0.625rem 1rem;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            border-radius: 2px;
-            cursor: pointer;
-            transition: all 0.2s ease;
             width: 100%;
         }
 
-        .new-game-btn:hover {
-            border-color: var(--text-primary);
-            color: var(--text-primary);
-        }
-
-        /* Overlays */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(250, 249, 247, 0.92);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
-            z-index: 100;
-        }
-
-        .overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .overlay-content {
-            text-align: center;
-        }
-
-        .overlay-title {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-        }
-
-        .overlay-result {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .overlay-score {
-            font-size: 1rem;
-            font-weight: 400;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .restart-btn {
-            font-family: inherit;
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--surface);
-            background: var(--text-primary);
-            border: none;
-            border-radius: 2px;
-            padding: 0.875rem 2rem;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .restart-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
 
         .continue-btn {
             font-family: inherit;
@@ -354,17 +149,6 @@
             color: var(--text-primary);
         }
 
-        /* Particles */
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
         /* Touch support hint */
         .touch-hint {
             display: none;
@@ -381,12 +165,6 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                gap: 2rem;
-                align-items: center;
-            }
-
             .board {
                 grid-template-columns: repeat(4, 70px);
                 grid-template-rows: repeat(4, 70px);
@@ -406,6 +184,16 @@
     </style>
 </head>
 <body>
+    <nav class="nav-header">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </a>
+        <span class="nav-title">2048</span>
+    </nav>
+
     <canvas id="particles"></canvas>
 
     <div class="container">
@@ -477,166 +265,89 @@
         </div>
     </div>
 
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/utils.js"></script>
     <script>
         // ============================================
-        // AMBIENT AUDIO
+        // 2048 SPECIFIC AUDIO EXTENSIONS
         // ============================================
-        class AmbientAudio {
-            constructor() {
-                this.ctx = null;
-                this.initialized = false;
-                this.masterGain = null;
-            }
 
-            init() {
-                if (this.initialized) return;
-                try {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    this.masterGain = this.ctx.createGain();
-                    this.masterGain.gain.value = 0.25;
-                    this.masterGain.connect(this.ctx.destination);
-                    this.initialized = true;
-                } catch (e) {
-                    console.log('Web Audio not supported');
-                }
-            }
+        // Soft slide sound
+        audio.playSlide = function() {
+            if (!this.initialized) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
 
-            // Soft slide sound
-            playSlide() {
-                if (!this.initialized) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.08);
 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
 
-                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
 
-                osc.connect(gain);
-                gain.connect(this.masterGain);
+            osc.start(this.ctx.currentTime);
+            osc.stop(this.ctx.currentTime + 0.1);
+        };
 
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.1);
-            }
+        // Merge sound - pitch increases with tile value
+        audio.playMerge = function(value) {
+            if (!this.initialized) return;
 
-            // Merge sound - pitch increases with tile value
-            playMerge(value) {
-                if (!this.initialized) return;
+            const baseFreq = 200 + Math.log2(value) * 50;
 
-                const baseFreq = 200 + Math.log2(value) * 50;
+            const osc = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
 
-                const osc = this.ctx.createOscillator();
-                const osc2 = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc2.type = 'triangle';
+            osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+            osc2.frequency.setValueAtTime(baseFreq * 1.5, this.ctx.currentTime);
 
-                osc.type = 'sine';
-                osc2.type = 'triangle';
-                osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
-                osc2.frequency.setValueAtTime(baseFreq * 1.5, this.ctx.currentTime);
+            gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
 
-                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+            osc.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.masterGain);
 
-                osc.connect(gain);
-                osc2.connect(gain);
-                gain.connect(this.masterGain);
+            osc.start(this.ctx.currentTime);
+            osc2.start(this.ctx.currentTime);
+            osc.stop(this.ctx.currentTime + 0.2);
+            osc2.stop(this.ctx.currentTime + 0.2);
+        };
 
-                osc.start(this.ctx.currentTime);
-                osc2.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.2);
-                osc2.stop(this.ctx.currentTime + 0.2);
-            }
+        // New tile pop
+        audio.playPop = function() {
+            if (!this.initialized) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
 
-            // New tile pop
-            playPop() {
-                if (!this.initialized) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(500, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
 
-                gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
 
-                osc.connect(gain);
-                gain.connect(this.masterGain);
-
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.08);
-            }
-
-            // Win celebration
-            playWin() {
-                if (!this.initialized) return;
-                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-
-                notes.forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.1);
-
-                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime + i * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.1 + 0.4);
-
-                    osc.connect(gain);
-                    gain.connect(this.masterGain);
-
-                    osc.start(this.ctx.currentTime + i * 0.1);
-                    osc.stop(this.ctx.currentTime + i * 0.1 + 0.4);
-                });
-            }
-
-            // Game over sound
-            playGameOver() {
-                if (!this.initialized) return;
-                const notes = [400, 350, 300, 250];
-
-                notes.forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.15);
-
-                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime + i * 0.15);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.15 + 0.3);
-
-                    osc.connect(gain);
-                    gain.connect(this.masterGain);
-
-                    osc.start(this.ctx.currentTime + i * 0.15);
-                    osc.stop(this.ctx.currentTime + i * 0.15 + 0.3);
-                });
-            }
-        }
-
-        const audio = new AmbientAudio();
+            osc.start(this.ctx.currentTime);
+            osc.stop(this.ctx.currentTime + 0.08);
+        };
 
         // ============================================
-        // PARTICLE SYSTEM
+        // 2048 SPECIFIC PARTICLE EXTENSIONS
         // ============================================
-        class ParticleSystem {
-            constructor() {
-                this.canvas = document.getElementById('particles');
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                this.animate();
-            }
 
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-
-            addMergeParticles(x, y, value) {
+        // Wait for particles to be initialized
+        document.addEventListener('DOMContentLoaded', () => {
+            particles.addMergeParticles = function(x, y, value) {
                 const hue = 30 + Math.log2(value) * 5;
                 for (let i = 0; i < 12; i++) {
                     const angle = (Math.PI * 2 * i) / 12;
@@ -651,49 +362,8 @@
                         color: `hsl(${hue}, 60%, 60%)`
                     });
                 }
-            }
-
-            addAmbientParticle() {
-                if (this.particles.length < 20 && Math.random() < 0.01) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: this.canvas.height + 10,
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: -0.2 - Math.random() * 0.3,
-                        life: 1,
-                        decay: 0.002,
-                        size: 2 + Math.random() * 2,
-                        color: `hsl(${30 + Math.random() * 20}, 40%, 70%)`
-                    });
-                }
-            }
-
-            animate() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.addAmbientParticle();
-
-                this.particles = this.particles.filter(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= p.decay;
-
-                    if (p.life <= 0) return false;
-
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-                    this.ctx.fillStyle = p.color;
-                    this.ctx.globalAlpha = p.life * 0.5;
-                    this.ctx.fill();
-                    this.ctx.globalAlpha = 1;
-
-                    return true;
-                });
-
-                requestAnimationFrame(() => this.animate());
-            }
-        }
-
-        const particles = new ParticleSystem();
+            };
+        });
 
         // ============================================
         // GAME STATE

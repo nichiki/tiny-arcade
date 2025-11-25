@@ -3,108 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shooting</title>
+    <title>Shooting - Tiny Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
     <style>
-        :root {
-            --bg: #faf9f7;
-            --surface: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #8a8a8a;
-            --text-tertiary: #c0c0c0;
-            --border: #e8e6e3;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .container {
-            display: flex;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .game-wrapper {
-            background: var(--surface);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border);
-            position: relative;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0 0.25rem;
-        }
-
-        .title {
-            font-size: 0.7rem;
-            font-weight: 500;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .score-inline {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-        }
-
+        /* Game-specific styles */
         canvas {
             display: block;
             border-radius: 8px;
-        }
-
-        /* Side panel */
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            min-width: 140px;
-        }
-
-        .panel-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .panel-label {
-            font-size: 0.6rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
-        }
-
-        .panel-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .panel-value.small {
-            font-size: 1rem;
         }
 
         /* Lives */
@@ -124,141 +30,21 @@
         .heart.lost {
             opacity: 0.2;
         }
-
-        /* New game button */
-        .new-game-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            padding: 0.6rem 1rem;
-            font-family: inherit;
-            font-size: 0.65rem;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .new-game-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        .hint {
-            font-size: 0.6rem;
-            color: var(--text-tertiary);
-            line-height: 1.5;
-        }
-
-        /* Overlays */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(250, 249, 247, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        .overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .start-title {
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .start-hint {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .start-btn {
-            background: var(--text-primary);
-            border: none;
-            padding: 0.8rem 2rem;
-            font-family: inherit;
-            font-size: 0.7rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--surface);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .start-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .overlay-title {
-            font-size: 0.8rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-        }
-
-        .overlay-score {
-            font-size: 3rem;
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .overlay-sub {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .restart-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            padding: 0.7rem 1.5rem;
-            font-family: inherit;
-            font-size: 0.65rem;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .restart-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        .overlay-hint {
-            font-size: 0.65rem;
-            color: var(--text-tertiary);
-            margin-top: 1.5rem;
-        }
     </style>
 </head>
 <body>
+    <canvas id="particles"></canvas>
+
+    <nav class="nav-header">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </a>
+        <span class="nav-title">Shooting</span>
+    </nav>
+
     <div class="overlay" id="start-overlay">
         <h1 class="start-title">Shooting</h1>
         <p class="start-hint">Arrow keys / WASD to move, Space to shoot</p>
@@ -331,85 +117,87 @@
         const restartBtn = document.getElementById('restart-btn');
         const newGameBtn = document.getElementById('new-game');
 
-        // Audio
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Game-specific audio extensions
+        const audio = window.ambientAudio;
+
+        audio.playShoot = function() {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.exponentialRampToValueAtTime(220, now + 0.08);
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        };
+
+        audio.playHit = function() {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(200, now + 0.12);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        };
+
+        audio.playExplosion = function() {
+            const now = this.ctx.currentTime;
+            const noise = this.ctx.createBufferSource();
+            const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.2, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < buffer.length; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / buffer.length, 2);
             }
-        }
+            noise.buffer = buffer;
+            const gain = this.ctx.createGain();
+            noise.connect(gain);
+            gain.connect(this.ctx.destination);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            noise.start(now);
+        };
 
-        function playSound(type) {
-            if (!audioCtx) return;
+        audio.playPlayerHit = function() {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.25);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        };
 
-            const now = audioCtx.currentTime;
-
-            if (type === 'shoot') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
+        audio.playWave = function() {
+            const now = this.ctx.currentTime;
+            const notes = [523, 659, 784];
+            notes.forEach((freq, i) => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
                 osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(880, now);
-                osc.frequency.exponentialRampToValueAtTime(220, now + 0.08);
-                gain.gain.setValueAtTime(0.06, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-                osc.start(now);
-                osc.stop(now + 0.08);
-            } else if (type === 'hit') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(this.ctx.destination);
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.exponentialRampToValueAtTime(200, now + 0.12);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-                osc.start(now);
-                osc.stop(now + 0.12);
-            } else if (type === 'explosion') {
-                const noise = audioCtx.createBufferSource();
-                const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.2, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < buffer.length; i++) {
-                    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / buffer.length, 2);
-                }
-                noise.buffer = buffer;
-                const gain = audioCtx.createGain();
-                noise.connect(gain);
-                gain.connect(audioCtx.destination);
-                gain.gain.setValueAtTime(0.12, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-                noise.start(now);
-            } else if (type === 'playerHit') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(200, now);
-                osc.frequency.exponentialRampToValueAtTime(50, now + 0.25);
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                osc.start(now);
-                osc.stop(now + 0.25);
-            } else if (type === 'wave') {
-                const notes = [523, 659, 784];
-                notes.forEach((freq, i) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + i * 0.1);
-                    gain.gain.setValueAtTime(0.08, now + i * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.15);
-                    osc.start(now + i * 0.1);
-                    osc.stop(now + i * 0.1 + 0.15);
-                });
-            }
-        }
+                osc.frequency.setValueAtTime(freq, now + i * 0.1);
+                gain.gain.setValueAtTime(0.08, now + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.15);
+                osc.start(now + i * 0.1);
+                osc.stop(now + i * 0.1 + 0.15);
+            });
+        };
 
         // Colors - game area stays dark/colorful
         const colors = {
@@ -510,7 +298,7 @@
             // Gradual increase: wave 1 = 4, wave 2 = 5, wave 3 = 6, etc. Max 12
             totalEnemiesThisWave = Math.min(3 + wave, 12);
             spawnTimer = 0;
-            playSound('wave');
+            audio.playWave();
         }
 
         function resetGame() {
@@ -550,7 +338,7 @@
             });
 
             player.shootCooldown = 12;
-            playSound('shoot');
+            audio.playShoot();
         }
 
         function update() {
@@ -660,9 +448,9 @@
                             score += e.type * 100;
                             scoreEl.textContent = score;
                             scoreInlineEl.textContent = score;
-                            playSound('explosion');
+                            audio.playExplosion();
                         } else {
-                            playSound('hit');
+                            audio.playHit();
                             createParticles(b.x, b.y, colors.bullet, 4);
                         }
                         break;
@@ -736,7 +524,7 @@
             lives--;
             updateLivesDisplay();
             player.invincible = 90;
-            playSound('playerHit');
+            audio.playPlayerHit();
             createParticles(player.x, player.y, colors.player, 6);
 
             if (lives <= 0) {
@@ -920,7 +708,7 @@
         });
 
         startBtn.addEventListener('click', () => {
-            initAudio();
+            audio.init();
             startOverlay.classList.add('hidden');
             resetGame();
             gameState = 'playing';
@@ -935,7 +723,7 @@
         });
 
         newGameBtn.addEventListener('click', () => {
-            initAudio();
+            audio.init();
             startOverlay.classList.add('hidden');
             gameOverOverlay.classList.add('hidden');
             resetGame();
@@ -947,7 +735,7 @@
         let touchX = null;
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            initAudio();
+            audio.init();
             touchX = e.touches[0].clientX;
             keys['Space'] = true;
         });
@@ -967,5 +755,8 @@
         // Start
         gameLoop();
     </script>
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/utils.js"></script>
 </body>
 </html>

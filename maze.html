@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze</title>
+    <title>Maze - Tiny Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
     <style>
         :root {
             --bg: #faf9f7;
@@ -18,51 +19,6 @@
             --goal: #d4a574;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .container {
-            display: flex;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .game-wrapper {
-            background: var(--surface);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0 0.25rem;
-        }
-
-        .title {
-            font-size: 0.7rem;
-            font-weight: 500;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
 
         .score-inline {
             font-size: 0.85rem;
@@ -77,27 +33,6 @@
             background: var(--bg);
         }
 
-        /* Side panel */
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            min-width: 140px;
-        }
-
-        .panel-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .panel-label {
-            font-size: 0.6rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
-        }
 
         .panel-value {
             font-size: 1.5rem;
@@ -123,171 +58,21 @@
             flex-direction: column;
             gap: 0.35rem;
         }
-
-        .size-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            padding: 0.4rem 0.6rem;
-            font-family: inherit;
-            font-size: 0.65rem;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .size-btn:hover {
-            border-color: var(--text-secondary);
-        }
-
-        .size-btn.active {
-            background: var(--text-primary);
-            border-color: var(--text-primary);
-            color: var(--surface);
-        }
-
-        /* New game button */
-        .new-game-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            padding: 0.6rem 1rem;
-            font-family: inherit;
-            font-size: 0.65rem;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .new-game-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        .hint {
-            font-size: 0.6rem;
-            color: var(--text-tertiary);
-            line-height: 1.5;
-        }
-
-        /* Overlays */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(250, 249, 247, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        .overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .start-title {
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .start-hint {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .start-btn {
-            background: var(--text-primary);
-            border: none;
-            padding: 0.8rem 2rem;
-            font-family: inherit;
-            font-size: 0.7rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--surface);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .start-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .overlay-title {
-            font-size: 0.8rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-        }
-
-        .overlay-score {
-            font-size: 3rem;
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .overlay-score .unit {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
-
-        .overlay-sub {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-
-        .restart-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            padding: 0.7rem 1.5rem;
-            font-family: inherit;
-            font-size: 0.65rem;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .restart-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        .overlay-hint {
-            font-size: 0.65rem;
-            color: var(--text-tertiary);
-            margin-top: 1.5rem;
-        }
     </style>
 </head>
 <body>
+    <canvas id="particles"></canvas>
+
+    <nav class="nav-header">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </a>
+        <span class="nav-title">Maze</span>
+    </nav>
+
     <div class="overlay" id="start-overlay">
         <h1 class="start-title">Maze</h1>
         <p class="start-hint">Arrow keys or WASD to move</p>
@@ -350,6 +135,9 @@
         <p class="overlay-hint">Press Enter or Space</p>
     </div>
 
+    <script src="js/utils.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -366,54 +154,26 @@
         const startBtn = document.getElementById('start-btn');
         const sizeBtns = document.querySelectorAll('.size-btn');
 
-        // Audio
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
+        // Initialize particles
+        const particles = new ParticleSystem();
 
-        function playSound(type) {
-            if (!audioCtx) return;
-
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            const now = audioCtx.currentTime;
-
-            if (type === 'move') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400 + Math.random() * 50, now);
-                gain.gain.setValueAtTime(0.04, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-                osc.start(now);
-                osc.stop(now + 0.04);
-            } else if (type === 'wall') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(100, now);
-                gain.gain.setValueAtTime(0.06, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-                osc.start(now);
-                osc.stop(now + 0.06);
-            } else if (type === 'win') {
+        // Game-specific audio extensions
+        const audio = {
+            move() {
+                playTone(400 + Math.random() * 50, 0.04, 0.04, 'sine');
+            },
+            wall() {
+                playTone(100, 0.06, 0.06, 'triangle');
+            },
+            win() {
                 const notes = [523, 659, 784, 1047];
                 notes.forEach((freq, i) => {
-                    const o = audioCtx.createOscillator();
-                    const g = audioCtx.createGain();
-                    o.connect(g);
-                    g.connect(audioCtx.destination);
-                    o.type = 'sine';
-                    o.frequency.setValueAtTime(freq, now + i * 0.12);
-                    g.gain.setValueAtTime(0.1, now + i * 0.12);
-                    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.3);
-                    o.start(now + i * 0.12);
-                    o.stop(now + i * 0.12 + 0.3);
+                    setTimeout(() => {
+                        playTone(freq, 0.1, 0.3, 'sine');
+                    }, i * 120);
                 });
             }
-        }
+        };
 
         // Colors
         const colors = {
@@ -545,14 +305,14 @@
                         }
                     }
 
-                    playSound('move');
+                    audio.move();
 
                     // Check win
                     if (player.x === goal.x && player.y === goal.y) {
                         gameWon = true;
                         clearInterval(timerInterval);
                         stopMoving();
-                        playSound('win');
+                        audio.win();
 
                         resultTimeEl.textContent = elapsedTime.toFixed(1);
                         resultMovesEl.textContent = moves;
@@ -563,7 +323,7 @@
 
                     return true;
                 } else {
-                    playSound('wall');
+                    audio.wall();
                     return false;
                 }
             }
@@ -795,14 +555,14 @@
         });
 
         startBtn.addEventListener('click', () => {
-            initAudio();
+            initAudioContext();
             startOverlay.classList.add('hidden');
             gameStarted = true;
             initGame();
         });
 
         newMazeBtn.addEventListener('click', () => {
-            initAudio();
+            initAudioContext();
             stopMoving();
             initGame();
         });
