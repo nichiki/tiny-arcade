@@ -1,0 +1,507 @@
+/* ============================================
+   TINY ARCADE - Common Styles
+   ============================================ */
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS Variables - Light Theme (Default) */
+:root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #8a8a8a;
+    --text-tertiary: #c0c0c0;
+    --border: #e8e6e3;
+    --accent: #1a1a1a;
+    --grid-line: rgba(0, 0, 0, 0.03);
+
+    /* Common game colors */
+    --danger: #d4908a;
+    --success: #9bc49b;
+    --warning: #e8c872;
+}
+
+/* Dark Theme */
+.theme-dark {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --text-primary: #e8e4dd;
+    --text-secondary: #6b6860;
+    --text-tertiary: #3a3a42;
+    --border: #2a2a32;
+    --accent: #e8e4dd;
+    --grid-line: rgba(255, 255, 255, 0.03);
+}
+
+/* Base Body */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+}
+
+/* ============================================
+   Navigation Header
+   ============================================ */
+.nav-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    z-index: 50;
+    background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+}
+
+.nav-back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.nav-back:hover {
+    color: var(--text-primary);
+}
+
+.nav-back svg {
+    width: 14px;
+    height: 14px;
+}
+
+.nav-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+/* ============================================
+   Layout
+   ============================================ */
+.container {
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+.game-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+.title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.score-inline {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   Game Board
+   ============================================ */
+.game-board,
+.board-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+}
+
+.game-board canvas,
+.board-container canvas {
+    display: block;
+    border-radius: 3px;
+}
+
+/* ============================================
+   Side Panel
+   ============================================ */
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-width: 140px;
+}
+
+.panel-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.panel-label {
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+/* ============================================
+   Score Display
+   ============================================ */
+.score-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.score-label {
+    font-size: 0.625rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.score-value,
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    transition: transform 0.15s ease;
+}
+
+.score-value.bump,
+.stat-value.bump {
+    transform: scale(1.15);
+}
+
+.best-value {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   Buttons - Standard (Outline)
+   ============================================ */
+.btn,
+.new-game-btn,
+.speed-btn,
+.mode-btn,
+.diff-btn,
+.size-btn {
+    font-family: inherit;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover,
+.new-game-btn:hover,
+.speed-btn:hover,
+.mode-btn:hover,
+.diff-btn:hover,
+.size-btn:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+}
+
+.btn.active,
+.speed-btn.active,
+.mode-btn.active,
+.diff-btn.active,
+.size-btn.active {
+    background: var(--accent);
+    color: var(--surface);
+    border-color: var(--accent);
+}
+
+/* Buttons - Primary (Solid) */
+.btn-primary,
+.restart-btn {
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--surface);
+    background: var(--accent);
+    border: none;
+    border-radius: 2px;
+    padding: 0.875rem 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover,
+.restart-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active,
+.restart-btn:active {
+    transform: translateY(0);
+}
+
+/* Start Button */
+.start-btn {
+    font-family: inherit;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.start-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+/* ============================================
+   Overlays
+   ============================================ */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(250, 249, 247, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    z-index: 100;
+}
+
+.theme-dark .overlay {
+    background: rgba(10, 10, 15, 0.95);
+}
+
+.overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay-content {
+    text-align: center;
+}
+
+.overlay-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.overlay-score,
+.overlay-result {
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.overlay-subtitle {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* Start Screen */
+.start-screen,
+.start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.start-screen.hidden,
+.start-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.start-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+}
+
+.start-hint {
+    font-size: 0.625rem;
+    color: var(--text-tertiary);
+    margin-bottom: 2rem;
+}
+
+/* Pause Indicator */
+.pause-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+    z-index: 50;
+}
+
+.pause-indicator.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   Particles Canvas
+   ============================================ */
+#particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================
+   Control Hints
+   ============================================ */
+.control-hint,
+.hint {
+    font-size: 0.5rem;
+    color: var(--text-tertiary);
+    line-height: 1.8;
+}
+
+.control-hint span {
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.125rem 0.375rem;
+    margin-right: 0.25rem;
+    font-family: inherit;
+}
+
+.hint strong {
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .side-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        min-width: auto;
+        justify-content: center;
+    }
+
+    .controls,
+    .control-hint {
+        display: none;
+    }
+
+    .nav-header {
+        padding: 0.75rem 1rem;
+    }
+}

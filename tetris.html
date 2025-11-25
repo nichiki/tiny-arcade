@@ -3,27 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tetris</title>
+    <title>Tetris - Tiny Arcade</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Game-specific variables */
         :root {
-            --bg: #faf9f7;
-            --surface: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #8a8a8a;
-            --text-tertiary: #c0c0c0;
-            --border: #e8e6e3;
-            --accent: #1a1a1a;
-
-            /* Block colors - muted, sophisticated palette */
             --block-i: #7eb8c9;
             --block-o: #e8c872;
             --block-t: #c49bc4;
@@ -35,72 +22,9 @@
             --block-placed: #d4d2cf;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            -webkit-font-smoothing: antialiased;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            gap: 4rem;
-            align-items: flex-start;
-            position: relative;
-            z-index: 1;
-        }
-
-        .game-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            width: 100%;
-            margin-bottom: 1.5rem;
-            padding: 0 0.25rem;
-        }
-
-        .title {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .score-display {
-            font-size: 0.875rem;
-            font-weight: 400;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .game-board {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            padding: 1px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-            position: relative;
-            overflow: hidden;
-        }
-
-        #canvas {
-            display: block;
-            border-radius: 1px;
+        .side-panel {
+            gap: 3rem;
+            min-width: 120px;
         }
 
         /* Ripple container */
@@ -123,14 +47,8 @@
         }
 
         @keyframes ripple-expand {
-            0% {
-                transform: scale(0);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(4);
-                opacity: 0;
-            }
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(4); opacity: 0; }
         }
 
         /* Line clear flash */
@@ -151,39 +69,9 @@
         }
 
         @keyframes line-flash {
-            0% {
-                opacity: 0;
-                transform: scaleX(0);
-            }
-            30% {
-                opacity: 1;
-                transform: scaleX(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scaleX(1);
-            }
-        }
-
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-            min-width: 120px;
-        }
-
-        .panel-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .panel-label {
-            font-size: 0.625rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
+            0% { opacity: 0; transform: scaleX(0); }
+            30% { opacity: 1; transform: scaleX(1); }
+            100% { opacity: 0; transform: scaleX(1); }
         }
 
         .next-piece {
@@ -213,212 +101,24 @@
             gap: 0.25rem;
         }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-            transition: transform 0.15s ease;
-        }
-
-        .stat-value.bump {
-            transform: scale(1.1);
-        }
-
         .controls {
             margin-top: auto;
-        }
-
-        .control-hint {
-            font-size: 0.625rem;
-            color: var(--text-tertiary);
-            line-height: 1.8;
-        }
-
-        .control-hint span {
-            display: inline-block;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            padding: 0.125rem 0.375rem;
-            margin-right: 0.25rem;
-            font-family: inherit;
-        }
-
-        /* Game Over Overlay */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(250, 249, 247, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
-            z-index: 100;
-        }
-
-        .overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .overlay-content {
-            text-align: center;
-        }
-
-        .overlay-title {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-        }
-
-        .overlay-score {
-            font-size: 3rem;
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 2rem;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .restart-btn {
-            font-family: inherit;
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--surface);
-            background: var(--accent);
-            border: none;
-            border-radius: 2px;
-            padding: 0.875rem 2rem;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .restart-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .restart-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Start Screen */
-        .start-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .start-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .start-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            margin-bottom: 3rem;
-        }
-
-        .start-btn {
-            font-family: inherit;
-            font-size: 0.625rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .start-btn:hover {
-            color: var(--text-primary);
-            border-color: var(--text-primary);
-        }
-
-        /* Pause indicator */
-        .pause-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease;
-            z-index: 50;
-        }
-
-        .pause-indicator.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Ambient particles */
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                gap: 2rem;
-                align-items: center;
-            }
-
-            .side-panel {
-                flex-direction: row;
-                gap: 2rem;
-                min-width: auto;
-            }
-
-            .controls {
-                display: none;
-            }
         }
     </style>
 </head>
 <body>
     <canvas id="particles"></canvas>
+
+    <!-- Navigation Header -->
+    <nav class="nav-header">
+        <a href="index.html" class="nav-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </a>
+        <span class="nav-title">Tetris</span>
+    </nav>
 
     <div class="start-screen" id="start-screen">
         <h1 class="start-title">Tetris</h1>
@@ -429,7 +129,7 @@
         <div class="game-wrapper">
             <div class="header">
                 <span class="title">Tetris</span>
-                <span class="score-display" id="score-header">0</span>
+                <span class="score-inline" id="score-header">0</span>
             </div>
             <div class="game-board" id="game-board">
                 <canvas id="canvas"></canvas>
@@ -479,246 +179,25 @@
         </div>
     </div>
 
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/utils.js"></script>
     <script>
         // ============================================
-        // AMBIENT SOUND ENGINE (Web Audio API)
+        // TETRIS-SPECIFIC AUDIO
         // ============================================
-        class AmbientAudio {
-            constructor() {
-                this.ctx = null;
-                this.initialized = false;
-                this.masterGain = null;
-            }
+        // Extend audio with Tetris-specific sounds
+        audio.playClear = function(lineCount) {
+            if (!this.initialized) return;
+            const baseFreqs = [261.63, 329.63, 392.00, 523.25];
+            const duration = 0.3 + lineCount * 0.1;
 
-            init() {
-                if (this.initialized) return;
-                try {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    this.masterGain = this.ctx.createGain();
-                    this.masterGain.gain.value = 0.3;
-                    this.masterGain.connect(this.ctx.destination);
-                    this.initialized = true;
-                } catch (e) {
-                    console.log('Web Audio not supported');
-                }
-            }
-
-            // Soft pluck sound for piece movement
-            playMove() {
-                if (!this.initialized) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(440, this.ctx.currentTime + 0.05);
-
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-
-                osc.connect(gain);
-                gain.connect(this.masterGain);
-
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.08);
-            }
-
-            // Soft thud for piece landing
-            playLand() {
-                if (!this.initialized) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.15);
-
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
-
-                osc.connect(gain);
-                gain.connect(this.masterGain);
-
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
-
-            // Gentle chime for rotation
-            playRotate() {
-                if (!this.initialized) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
-
-                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
-
-                osc.connect(gain);
-                gain.connect(this.masterGain);
-
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.12);
-            }
-
-            // Harmonic sweep for line clear
-            playClear(lineCount) {
-                if (!this.initialized) return;
-
-                const baseFreqs = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
-                const duration = 0.3 + lineCount * 0.1;
-
-                baseFreqs.slice(0, lineCount + 1).forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.05);
-
-                    gain.gain.setValueAtTime(0, this.ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + i * 0.05 + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-
-                    osc.connect(gain);
-                    gain.connect(this.masterGain);
-
-                    osc.start(this.ctx.currentTime + i * 0.05);
-                    osc.stop(this.ctx.currentTime + duration);
-                });
-            }
-
-            // Soft whoosh for hard drop
-            playDrop() {
-                if (!this.initialized) return;
-
-                // White noise filtered
-                const bufferSize = this.ctx.sampleRate * 0.1;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-                }
-
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
-                filter.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.1);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.masterGain);
-
-                noise.start(this.ctx.currentTime);
-            }
-
-            // Melancholic tone for game over
-            playGameOver() {
-                if (!this.initialized) return;
-
-                const notes = [392.00, 349.23, 329.63, 293.66]; // G4, F4, E4, D4
-
-                notes.forEach((freq, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.3);
-
-                    gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.3);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.3 + 0.5);
-
-                    osc.connect(gain);
-                    gain.connect(this.masterGain);
-
-                    osc.start(this.ctx.currentTime + i * 0.3);
-                    osc.stop(this.ctx.currentTime + i * 0.3 + 0.5);
-                });
-            }
-        }
-
-        const audio = new AmbientAudio();
-
-        // ============================================
-        // AMBIENT PARTICLES
-        // ============================================
-        class ParticleSystem {
-            constructor() {
-                this.canvas = document.getElementById('particles');
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-            }
-
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-
-            addParticle(x, y, color) {
-                for (let i = 0; i < 5; i++) {
-                    this.particles.push({
-                        x: x,
-                        y: y,
-                        vx: (Math.random() - 0.5) * 2,
-                        vy: (Math.random() - 0.5) * 2 - 1,
-                        life: 1,
-                        decay: 0.01 + Math.random() * 0.01,
-                        size: 3 + Math.random() * 4,
-                        color: color
-                    });
-                }
-            }
-
-            addAmbientParticle() {
-                if (this.particles.length < 30 && Math.random() < 0.02) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: this.canvas.height + 10,
-                        vx: (Math.random() - 0.5) * 0.5,
-                        vy: -0.3 - Math.random() * 0.5,
-                        life: 1,
-                        decay: 0.003 + Math.random() * 0.002,
-                        size: 2 + Math.random() * 3,
-                        color: `hsl(${Math.random() * 40 + 20}, 30%, 70%)`
-                    });
-                }
-            }
-
-            update() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-                this.addAmbientParticle();
-
-                this.particles = this.particles.filter(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= p.decay;
-
-                    if (p.life <= 0) return false;
-
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-                    this.ctx.fillStyle = p.color;
-                    this.ctx.globalAlpha = p.life * 0.3;
-                    this.ctx.fill();
-                    this.ctx.globalAlpha = 1;
-
-                    return true;
-                });
-            }
-        }
-
-        const particles = new ParticleSystem();
+            baseFreqs.slice(0, lineCount + 1).forEach((freq, i) => {
+                setTimeout(() => {
+                    this.playTone(freq, duration - i * 0.05, 'sine', 0.15);
+                }, i * 50);
+            });
+        };
 
         // ============================================
         // RIPPLE EFFECT
@@ -732,7 +211,6 @@
             ripple.style.width = '100px';
             ripple.style.height = '100px';
             container.appendChild(ripple);
-
             setTimeout(() => ripple.remove(), 1200);
         }
 
@@ -742,7 +220,6 @@
             flash.className = 'line-flash';
             flash.style.top = (row * BLOCK_SIZE) + 'px';
             container.appendChild(flash);
-
             setTimeout(() => flash.remove(), 400);
         }
 
@@ -803,7 +280,6 @@
         let lastTime = 0;
         let dropCounter = 0;
         let dropInterval = 1000;
-        let lockDelay = false;
         let clearingLines = false;
 
         // ============================================
@@ -1067,9 +543,10 @@
             const pos = currentPiece.getCenterPosition();
             createRipple(pos.x, pos.y);
 
-            // Add particles at piece position
             const rect = canvas.getBoundingClientRect();
-            particles.addParticle(rect.left + pos.x, rect.top + pos.y, currentPiece.color);
+            if (particles) {
+                particles.addBurst(rect.left + pos.x, rect.top + pos.y, 5, currentPiece.color);
+            }
 
             currentPiece.lock();
             audio.playLand();
@@ -1089,23 +566,19 @@
             if (linesToClear.length > 0) {
                 clearingLines = true;
 
-                // Create visual effects for each line
                 linesToClear.forEach(row => {
                     createLineFlash(row);
                 });
 
                 audio.playClear(linesToClear.length);
 
-                // Wait for animation then clear
                 setTimeout(() => {
-                    // Remove lines from bottom to top, adjusting for index shift
-                    const sortedLines = linesToClear.sort((a, b) => a - b); // Sort ascending
+                    const sortedLines = linesToClear.sort((a, b) => a - b);
                     let removed = 0;
                     for (const row of sortedLines) {
                         board.splice(row - removed, 1);
                         removed++;
                     }
-                    // Add empty lines at top
                     for (let i = 0; i < linesToClear.length; i++) {
                         board.unshift(new Array(COLS).fill(null));
                     }
@@ -1138,7 +611,6 @@
             levelEl.textContent = level;
             linesEl.textContent = lines;
 
-            // Bump animation
             [levelEl, linesEl].forEach(el => {
                 el.classList.add('bump');
                 setTimeout(() => el.classList.remove('bump'), 150);
@@ -1227,8 +699,6 @@
         // GAME LOOP
         // ============================================
         function update(time = 0) {
-            particles.update();
-
             if (!gameOver && !paused && !clearingLines && currentPiece) {
                 const deltaTime = time - lastTime;
                 lastTime = time;
