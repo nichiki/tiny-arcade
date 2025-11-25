@@ -209,21 +209,25 @@
         // ============================================
         // PARTICLES EXTENSIONS (Game-specific)
         // ============================================
-        particles.addBrickParticles = function(x, y, color) {
-            for (let i = 0; i < 8; i++) {
-                const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.5;
-                this.particles.push({
-                    x, y,
-                    vx: Math.cos(angle) * (2 + Math.random() * 2),
-                    vy: Math.sin(angle) * (2 + Math.random() * 2),
-                    life: 1,
-                    decay: 0.02,
-                    size: 3 + Math.random() * 3,
-                    color,
-                    alpha: 0.6
-                });
+        document.addEventListener('DOMContentLoaded', () => {
+            if (particles) {
+                particles.addBrickParticles = function(x, y, color) {
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.5;
+                        this.particles.push({
+                            x, y,
+                            vx: Math.cos(angle) * (2 + Math.random() * 2),
+                            vy: Math.sin(angle) * (2 + Math.random() * 2),
+                            life: 1,
+                            decay: 0.02,
+                            size: 3 + Math.random() * 3,
+                            color,
+                            alpha: 0.6
+                        });
+                    }
+                };
             }
-        };
+        });
 
         // ============================================
         // GAME

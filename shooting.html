@@ -102,6 +102,9 @@
         <p class="overlay-hint">Press Enter or Space</p>
     </div>
 
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/utils.js"></script>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -118,9 +121,8 @@
         const newGameBtn = document.getElementById('new-game');
 
         // Game-specific audio extensions
-        const audio = window.ambientAudio;
-
         audio.playShoot = function() {
+            if (!this.initialized) return;
             const now = this.ctx.currentTime;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -136,6 +138,7 @@
         };
 
         audio.playHit = function() {
+            if (!this.initialized) return;
             const now = this.ctx.currentTime;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -151,6 +154,7 @@
         };
 
         audio.playExplosion = function() {
+            if (!this.initialized) return;
             const now = this.ctx.currentTime;
             const noise = this.ctx.createBufferSource();
             const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.2, this.ctx.sampleRate);
@@ -168,6 +172,7 @@
         };
 
         audio.playPlayerHit = function() {
+            if (!this.initialized) return;
             const now = this.ctx.currentTime;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -183,6 +188,7 @@
         };
 
         audio.playWave = function() {
+            if (!this.initialized) return;
             const now = this.ctx.currentTime;
             const notes = [523, 659, 784];
             notes.forEach((freq, i) => {

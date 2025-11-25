@@ -226,12 +226,12 @@
         let countdown = 0;
         let countdownTimer = null;
 
-        // Particles
-        let particles = [];
+        // Game-specific particles (separate from background particles)
+        let gameParticles = [];
 
         function createParticles(x, y, count = 6) {
             for (let i = 0; i < count; i++) {
-                particles.push({
+                gameParticles.push({
                     x: x,
                     y: y,
                     vx: (Math.random() - 0.5) * 4,
@@ -247,7 +247,7 @@
             bird.velocity = 0;
             bird.rotation = 0;
             pipes = [];
-            particles = [];
+            gameParticles = [];
             score = 0;
             scoreEl.textContent = '0';
             scoreInlineEl.textContent = '0';
@@ -374,15 +374,15 @@
                 }
             }
 
-            // Update particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
+            // Update game particles
+            for (let i = gameParticles.length - 1; i >= 0; i--) {
+                const p = gameParticles[i];
                 p.x += p.vx;
                 p.y += p.vy;
                 p.vy += 0.1;
                 p.life -= 0.04;
                 if (p.life <= 0) {
-                    particles.splice(i, 1);
+                    gameParticles.splice(i, 1);
                 }
             }
 
@@ -519,9 +519,9 @@
 
             ctx.restore();
 
-            // Particles
+            // Game Particles
             ctx.fillStyle = colors.bird;
-            for (const p of particles) {
+            for (const p of gameParticles) {
                 ctx.globalAlpha = p.life;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);

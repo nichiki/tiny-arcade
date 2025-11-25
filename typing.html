@@ -404,17 +404,13 @@
         const resultWordsEl = document.getElementById('resultWords');
         const resultMessageEl = document.getElementById('resultMessage');
 
-        // Initialize particle system and audio
-        const particles = new ParticleSystem();
-        const audio = new AmbientAudio();
-
         // Game-specific audio extensions
         audio.playKey = function() {
-            if (!this.ctx) return;
+            if (!this.initialized) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.masterGain);
 
             const now = this.ctx.currentTime;
             osc.type = 'sine';
@@ -426,11 +422,11 @@
         };
 
         audio.playWord = function() {
-            if (!this.ctx) return;
+            if (!this.initialized) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.masterGain);
 
             const now = this.ctx.currentTime;
             osc.type = 'sine';
@@ -443,11 +439,11 @@
         };
 
         audio.playError = function() {
-            if (!this.ctx) return;
+            if (!this.initialized) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.masterGain);
 
             const now = this.ctx.currentTime;
             osc.type = 'sine';
@@ -459,14 +455,14 @@
         };
 
         audio.playComplete = function() {
-            if (!this.ctx) return;
+            if (!this.initialized) return;
             const notes = [523, 659, 784, 1047];
             const now = this.ctx.currentTime;
             notes.forEach((freq, i) => {
                 const o = this.ctx.createOscillator();
                 const g = this.ctx.createGain();
                 o.connect(g);
-                g.connect(this.ctx.destination);
+                g.connect(this.masterGain);
                 o.type = 'sine';
                 o.frequency.setValueAtTime(freq, now + i * 0.1);
                 g.gain.setValueAtTime(0.08, now + i * 0.1);
@@ -547,11 +543,13 @@
 
                 // Create particles
                 const rect = wordDisplay.getBoundingClientRect();
-                for (let i = 0; i < 5; i++) {
-                    particles.createParticle(
-                        rect.left + rect.width / 2 + (Math.random() - 0.5) * 80,
+                const colors = ['#7eb88a', '#d4a574', '#7eb8c9'];
+                if (particles) {
+                    particles.addBurst(
+                        rect.left + rect.width / 2,
                         rect.top + rect.height / 2,
-                        ['#7eb88a', '#d4a574', '#7eb8c9'][Math.floor(Math.random() * 3)]
+                        5,
+                        colors[Math.floor(Math.random() * colors.length)]
                     );
                 }
             } else {
