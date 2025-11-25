@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Life</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --cell-alive: #e8e4dd;
+            --cell-dying: #6b6860;
+            --cell-born: #ffffff;
+            --grid-line: rgba(255, 255, 255, 0.03);
+            --text-primary: #e8e4dd;
+            --text-secondary: #6b6860;
+            --text-tertiary: #3a3a42;
+            --border: #2a2a32;
+            --accent: #e8e4dd;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        #grid-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ui-overlay > * {
+            pointer-events: auto;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(10, 10, 15, 0.9) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .header > * {
+            pointer-events: auto;
+        }
+
+        .title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .generation {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            align-items: baseline;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Controls Panel */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(18, 18, 26, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .control-btn {
+            font-family: inherit;
+            font-size: 0.625rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .control-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .control-btn.primary {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .control-btn.primary:hover {
+            background: var(--text-primary);
+        }
+
+        .control-icon {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        /* Speed slider */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 0.5rem;
+        }
+
+        .speed-label {
+            font-size: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+
+        .speed-slider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--border);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .speed-slider::-webkit-slider-thumb:hover {
+            background: var(--text-primary);
+        }
+
+        /* Patterns Panel */
+        .patterns-panel {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(18, 18, 26, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .patterns-title {
+            font-size: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 0.25rem;
+        }
+
+        .pattern-btn {
+            font-family: inherit;
+            font-size: 0.625rem;
+            font-weight: 400;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .pattern-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .pattern-btn.selected {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Hint */
+        .hint {
+            position: fixed;
+            bottom: 5.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.625rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.05em;
+            z-index: 10;
+        }
+
+        /* Glow effect for cells */
+        .glow-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .patterns-panel {
+                right: 1rem;
+                top: auto;
+                bottom: 6rem;
+                transform: none;
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-width: calc(100% - 2rem);
+            }
+
+            .patterns-title {
+                width: 100%;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .stats {
+                gap: 1rem;
+            }
+
+            .generation {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <canvas id="grid-canvas"></canvas>
+    </div>
+    <canvas id="glow-layer" class="glow-layer"></canvas>
+
+    <div class="header">
+        <div class="title-section">
+            <span class="title">Game of Life</span>
+            <span class="generation" id="generation">0</span>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Population</span>
+                <span class="stat-value" id="population">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Born</span>
+                <span class="stat-value" id="born">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Died</span>
+                <span class="stat-value" id="died">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn primary" id="play-btn">
+            <svg class="control-icon" viewBox="0 0 24 24" id="play-icon">
+                <polygon points="5,3 19,12 5,21" />
+            </svg>
+            Play
+        </button>
+        <button class="control-btn" id="step-btn">Step</button>
+        <button class="control-btn" id="clear-btn">Clear</button>
+        <button class="control-btn" id="random-btn">Random</button>
+        <div class="speed-control">
+            <span class="speed-label">Speed</span>
+            <input type="range" class="speed-slider" id="speed-slider" min="1" max="60" value="15">
+        </div>
+    </div>
+
+    <div class="patterns-panel">
+        <span class="patterns-title">Patterns</span>
+        <button class="pattern-btn" data-pattern="glider">Glider</button>
+        <button class="pattern-btn" data-pattern="lwss">Spaceship</button>
+        <button class="pattern-btn" data-pattern="pulsar">Pulsar</button>
+        <button class="pattern-btn" data-pattern="gosper">Gosper Gun</button>
+        <button class="pattern-btn" data-pattern="pentadecathlon">Pentadeca</button>
+    </div>
+
+    <p class="hint" id="hint">Click or drag to draw cells • Select a pattern to stamp</p>
+
+    <script>
+        // ============================================
+        // AMBIENT AUDIO ENGINE
+        // ============================================
+        class AmbientAudio {
+            constructor() {
+                this.ctx = null;
+                this.initialized = false;
+                this.masterGain = null;
+                this.droneOsc = null;
+                this.droneGain = null;
+            }
+
+            init() {
+                if (this.initialized) return;
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    this.masterGain = this.ctx.createGain();
+                    this.masterGain.gain.value = 0.15;
+                    this.masterGain.connect(this.ctx.destination);
+                    this.initialized = true;
+                } catch (e) {
+                    console.log('Web Audio not supported');
+                }
+            }
+
+            // Soft birth sound
+            playBirth(count) {
+                if (!this.initialized || count === 0) return;
+
+                const intensity = Math.min(count / 50, 1);
+                const freq = 400 + Math.random() * 200;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.2, this.ctx.currentTime + 0.1);
+
+                gain.gain.setValueAtTime(0.03 * intensity, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+
+                osc.start(this.ctx.currentTime);
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            // Soft death sound
+            playDeath(count) {
+                if (!this.initialized || count === 0) return;
+
+                const intensity = Math.min(count / 50, 1);
+                const freq = 200 + Math.random() * 100;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.8, this.ctx.currentTime + 0.12);
+
+                gain.gain.setValueAtTime(0.02 * intensity, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+
+                osc.start(this.ctx.currentTime);
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            // Ambient drone based on population
+            updateDrone(population, maxPopulation) {
+                if (!this.initialized) return;
+
+                if (!this.droneOsc) {
+                    this.droneOsc = this.ctx.createOscillator();
+                    this.droneOsc2 = this.ctx.createOscillator();
+                    this.droneGain = this.ctx.createGain();
+
+                    this.droneOsc.type = 'sine';
+                    this.droneOsc2.type = 'sine';
+                    this.droneOsc.frequency.value = 60;
+                    this.droneOsc2.frequency.value = 90;
+
+                    this.droneOsc.connect(this.droneGain);
+                    this.droneOsc2.connect(this.droneGain);
+                    this.droneGain.connect(this.masterGain);
+                    this.droneGain.gain.value = 0;
+
+                    this.droneOsc.start();
+                    this.droneOsc2.start();
+                }
+
+                const intensity = Math.min(population / maxPopulation, 1);
+                this.droneGain.gain.linearRampToValueAtTime(intensity * 0.08, this.ctx.currentTime + 0.1);
+                this.droneOsc.frequency.linearRampToValueAtTime(60 + intensity * 20, this.ctx.currentTime + 0.1);
+                this.droneOsc2.frequency.linearRampToValueAtTime(90 + intensity * 30, this.ctx.currentTime + 0.1);
+            }
+
+            // Click sound for drawing
+            playClick() {
+                if (!this.initialized) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+
+                osc.start(this.ctx.currentTime);
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+        }
+
+        const audio = new AmbientAudio();
+
+        // ============================================
+        // PATTERNS
+        // ============================================
+        const PATTERNS = {
+            glider: [
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 1, 1]
+            ],
+            lwss: [
+                [0, 1, 1, 1, 1],
+                [1, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1],
+                [1, 0, 0, 1, 0]
+            ],
+            pulsar: [
+                [0,0,1,1,1,0,0,0,1,1,1,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [1,0,0,0,0,1,0,1,0,0,0,0,1],
+                [1,0,0,0,0,1,0,1,0,0,0,0,1],
+                [1,0,0,0,0,1,0,1,0,0,0,0,1],
+                [0,0,1,1,1,0,0,0,1,1,1,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,1,1,1,0,0,0,1,1,1,0,0],
+                [1,0,0,0,0,1,0,1,0,0,0,0,1],
+                [1,0,0,0,0,1,0,1,0,0,0,0,1],
+                [1,0,0,0,0,1,0,1,0,0,0,0,1],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,1,1,1,0,0,0,1,1,1,0,0]
+            ],
+            gosper: [
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+                [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+                [1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            ],
+            pentadecathlon: [
+                [0,0,1,0,0,0,0,1,0,0],
+                [1,1,0,1,1,1,1,0,1,1],
+                [0,0,1,0,0,0,0,1,0,0]
+            ]
+        };
+
+        // ============================================
+        // GAME STATE
+        // ============================================
+        const canvas = document.getElementById('grid-canvas');
+        const ctx = canvas.getContext('2d');
+        const glowCanvas = document.getElementById('glow-layer');
+        const glowCtx = glowCanvas.getContext('2d');
+
+        let cellSize = 8;
+        let cols, rows;
+        let grid = [];
+        let nextGrid = [];
+        let generation = 0;
+        let population = 0;
+        let born = 0;
+        let died = 0;
+        let isPlaying = false;
+        let speed = 15;
+        let lastUpdate = 0;
+        let selectedPattern = null;
+        let isDrawing = false;
+        let lastDrawCell = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            glowCanvas.width = window.innerWidth;
+            glowCanvas.height = window.innerHeight;
+
+            cols = Math.ceil(canvas.width / cellSize);
+            rows = Math.ceil(canvas.height / cellSize);
+
+            // Preserve existing cells
+            const oldGrid = grid;
+            grid = createEmptyGrid();
+            nextGrid = createEmptyGrid();
+
+            // Copy old data
+            for (let y = 0; y < Math.min(rows, oldGrid.length); y++) {
+                for (let x = 0; x < Math.min(cols, oldGrid[y]?.length || 0); x++) {
+                    grid[y][x] = oldGrid[y][x];
+                }
+            }
+        }
+
+        function createEmptyGrid() {
+            return Array(rows).fill(null).map(() => Array(cols).fill(0));
+        }
+
+        function randomize() {
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    grid[y][x] = Math.random() < 0.15 ? 1 : 0;
+                }
+            }
+            generation = 0;
+            updateStats();
+        }
+
+        function clear() {
+            grid = createEmptyGrid();
+            nextGrid = createEmptyGrid();
+            generation = 0;
+            born = 0;
+            died = 0;
+            updateStats();
+        }
+
+        // ============================================
+        // GAME LOGIC
+        // ============================================
+        function countNeighbors(x, y) {
+            let count = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+
+                    const nx = (x + dx + cols) % cols;
+                    const ny = (y + dy + rows) % rows;
+                    count += grid[ny][nx];
+                }
+            }
+            return count;
+        }
+
+        function step() {
+            audio.init();
+
+            let newBorn = 0;
+            let newDied = 0;
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const neighbors = countNeighbors(x, y);
+                    const alive = grid[y][x];
+
+                    if (alive) {
+                        if (neighbors < 2 || neighbors > 3) {
+                            nextGrid[y][x] = 0;
+                            newDied++;
+                        } else {
+                            nextGrid[y][x] = 1;
+                        }
+                    } else {
+                        if (neighbors === 3) {
+                            nextGrid[y][x] = 1;
+                            newBorn++;
+                        } else {
+                            nextGrid[y][x] = 0;
+                        }
+                    }
+                }
+            }
+
+            // Swap grids
+            [grid, nextGrid] = [nextGrid, grid];
+
+            generation++;
+            born = newBorn;
+            died = newDied;
+
+            audio.playBirth(newBorn);
+            audio.playDeath(newDied);
+
+            updateStats();
+        }
+
+        function updateStats() {
+            population = 0;
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    population += grid[y][x];
+                }
+            }
+
+            document.getElementById('generation').textContent = generation.toLocaleString();
+            document.getElementById('population').textContent = population.toLocaleString();
+            document.getElementById('born').textContent = born.toLocaleString();
+            document.getElementById('died').textContent = died.toLocaleString();
+
+            audio.updateDrone(population, (cols * rows) * 0.3);
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        function draw() {
+            ctx.fillStyle = '#0a0a0f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid lines (very subtle)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x <= cols; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * cellSize, 0);
+                ctx.lineTo(x * cellSize, canvas.height);
+                ctx.stroke();
+            }
+
+            for (let y = 0; y <= rows; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * cellSize);
+                ctx.lineTo(canvas.width, y * cellSize);
+                ctx.stroke();
+            }
+
+            // Draw cells
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    if (grid[y][x]) {
+                        const px = x * cellSize;
+                        const py = y * cellSize;
+
+                        // Main cell
+                        ctx.fillStyle = '#e8e4dd';
+                        ctx.fillRect(px + 1, py + 1, cellSize - 2, cellSize - 2);
+                    }
+                }
+            }
+
+            // Draw glow layer
+            glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    if (grid[y][x]) {
+                        const px = x * cellSize + cellSize / 2;
+                        const py = y * cellSize + cellSize / 2;
+
+                        const gradient = glowCtx.createRadialGradient(px, py, 0, px, py, cellSize * 2);
+                        gradient.addColorStop(0, 'rgba(232, 228, 221, 0.3)');
+                        gradient.addColorStop(1, 'transparent');
+
+                        glowCtx.fillStyle = gradient;
+                        glowCtx.fillRect(px - cellSize * 2, py - cellSize * 2, cellSize * 4, cellSize * 4);
+                    }
+                }
+            }
+
+            // Draw pattern preview
+            if (selectedPattern) {
+                const pattern = PATTERNS[selectedPattern];
+                const mouseX = Math.floor(lastMouseX / cellSize);
+                const mouseY = Math.floor(lastMouseY / cellSize);
+
+                ctx.fillStyle = 'rgba(232, 228, 221, 0.3)';
+                for (let py = 0; py < pattern.length; py++) {
+                    for (let px = 0; px < pattern[py].length; px++) {
+                        if (pattern[py][px]) {
+                            const x = mouseX + px - Math.floor(pattern[0].length / 2);
+                            const y = mouseY + py - Math.floor(pattern.length / 2);
+                            ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // INPUT HANDLING
+        // ============================================
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        canvas.addEventListener('mousedown', (e) => {
+            audio.init();
+            const x = Math.floor(e.clientX / cellSize);
+            const y = Math.floor(e.clientY / cellSize);
+
+            if (selectedPattern) {
+                placePattern(x, y);
+            } else {
+                isDrawing = true;
+                toggleCell(x, y);
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+
+            if (isDrawing) {
+                const x = Math.floor(e.clientX / cellSize);
+                const y = Math.floor(e.clientY / cellSize);
+
+                if (!lastDrawCell || lastDrawCell.x !== x || lastDrawCell.y !== y) {
+                    toggleCell(x, y, true);
+                    lastDrawCell = { x, y };
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            lastDrawCell = null;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDrawing = false;
+            lastDrawCell = null;
+        });
+
+        function toggleCell(x, y, forceOn = false) {
+            if (x >= 0 && x < cols && y >= 0 && y < rows) {
+                if (forceOn) {
+                    grid[y][x] = 1;
+                } else {
+                    grid[y][x] = grid[y][x] ? 0 : 1;
+                }
+                audio.playClick();
+                updateStats();
+            }
+        }
+
+        function placePattern(centerX, centerY) {
+            const pattern = PATTERNS[selectedPattern];
+            const offsetX = Math.floor(pattern[0].length / 2);
+            const offsetY = Math.floor(pattern.length / 2);
+
+            for (let py = 0; py < pattern.length; py++) {
+                for (let px = 0; px < pattern[py].length; px++) {
+                    if (pattern[py][px]) {
+                        const x = (centerX + px - offsetX + cols) % cols;
+                        const y = (centerY + py - offsetY + rows) % rows;
+                        grid[y][x] = 1;
+                    }
+                }
+            }
+
+            audio.playClick();
+            updateStats();
+        }
+
+        // ============================================
+        // CONTROLS
+        // ============================================
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+
+        playBtn.addEventListener('click', () => {
+            audio.init();
+            isPlaying = !isPlaying;
+            updatePlayButton();
+        });
+
+        function updatePlayButton() {
+            if (isPlaying) {
+                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+                playBtn.innerHTML = '';
+                playBtn.appendChild(playIcon);
+                playBtn.innerHTML += ' Pause';
+            } else {
+                playIcon.innerHTML = '<polygon points="5,3 19,12 5,21" />';
+                playBtn.innerHTML = '';
+                playBtn.appendChild(playIcon);
+                playBtn.innerHTML += ' Play';
+            }
+        }
+
+        document.getElementById('step-btn').addEventListener('click', () => {
+            if (!isPlaying) {
+                step();
+            }
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', clear);
+        document.getElementById('random-btn').addEventListener('click', randomize);
+
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+        });
+
+        // Pattern buttons
+        document.querySelectorAll('.pattern-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pattern = btn.dataset.pattern;
+
+                if (selectedPattern === pattern) {
+                    selectedPattern = null;
+                    btn.classList.remove('selected');
+                    document.getElementById('hint').textContent = 'Click or drag to draw cells • Select a pattern to stamp';
+                } else {
+                    document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('selected'));
+                    selectedPattern = pattern;
+                    btn.classList.add('selected');
+                    document.getElementById('hint').textContent = `Click to place ${btn.textContent} • Click button again to deselect`;
+                }
+            });
+        });
+
+        // ============================================
+        // GAME LOOP
+        // ============================================
+        function gameLoop(timestamp) {
+            const interval = 1000 / speed;
+
+            if (isPlaying && timestamp - lastUpdate >= interval) {
+                step();
+                lastUpdate = timestamp;
+            }
+
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        window.addEventListener('resize', resize);
+        resize();
+        randomize();
+        updatePlayButton();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

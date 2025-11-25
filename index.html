@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf9f7;
+            --surface: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #6b6b6b;
+            --text-tertiary: #9a9a9a;
+            --border: #e5e5e5;
+            --accent: #1a1a1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .game-count {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 6px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .game-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            border-color: var(--text-tertiary);
+        }
+
+        .game-preview {
+            aspect-ratio: 16 / 10;
+            background: linear-gradient(135deg, #f0efed 0%, #e8e6e3 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .game-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .game-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        .game-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            background: var(--bg);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tiny Arcade</h1>
+            <p class="subtitle">A collection of minimal browser games</p>
+            <span class="game-count">12 games</span>
+        </header>
+
+        <div class="games-grid">
+            <a href="tetris.html" class="game-card">
+                <div class="game-preview">🧱</div>
+                <div class="game-info">
+                    <h2 class="game-title">Tetris</h2>
+                    <p class="game-description">落ちてくるブロックを積み上げて、横一列を揃えて消していく定番パズル</p>
+                    <div class="game-tags">
+                        <span class="tag">Puzzle</span>
+                        <span class="tag">Classic</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="othello.html" class="game-card">
+                <div class="game-preview">⚫</div>
+                <div class="game-info">
+                    <h2 class="game-title">Othello</h2>
+                    <p class="game-description">相手の石を挟んで裏返し、最終的に自分の色を多くするボードゲーム</p>
+                    <div class="game-tags">
+                        <span class="tag">Board</span>
+                        <span class="tag">Strategy</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="2048.html" class="game-card">
+                <div class="game-preview">2048</div>
+                <div class="game-info">
+                    <h2 class="game-title">2048</h2>
+                    <p class="game-description">同じ数字のタイルをスライドして合体させ、2048を目指すパズル</p>
+                    <div class="game-tags">
+                        <span class="tag">Puzzle</span>
+                        <span class="tag">Numbers</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="life.html" class="game-card">
+                <div class="game-preview">🔬</div>
+                <div class="game-info">
+                    <h2 class="game-title">Life Game</h2>
+                    <p class="game-description">シンプルなルールから複雑なパターンが生まれるセルオートマトン</p>
+                    <div class="game-tags">
+                        <span class="tag">Simulation</span>
+                        <span class="tag">Cellular</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="minesweeper.html" class="game-card">
+                <div class="game-preview">💣</div>
+                <div class="game-info">
+                    <h2 class="game-title">Minesweeper</h2>
+                    <p class="game-description">数字をヒントに地雷を避けながらマスを開いていく論理パズル</p>
+                    <div class="game-tags">
+                        <span class="tag">Puzzle</span>
+                        <span class="tag">Logic</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="snake.html" class="game-card">
+                <div class="game-preview">🐍</div>
+                <div class="game-info">
+                    <h2 class="game-title">Snake</h2>
+                    <p class="game-description">餌を食べて伸びていくヘビを操作し、壁や自分にぶつからないように</p>
+                    <div class="game-tags">
+                        <span class="tag">Arcade</span>
+                        <span class="tag">Classic</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="particle-life.html" class="game-card">
+                <div class="game-preview">✨</div>
+                <div class="game-info">
+                    <h2 class="game-title">Particle Life</h2>
+                    <p class="game-description">粒子同士が引き合い反発し合い、生命のような動きを見せるシミュレーション</p>
+                    <div class="game-tags">
+                        <span class="tag">Simulation</span>
+                        <span class="tag">Art</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="breakout.html" class="game-card">
+                <div class="game-preview">🎯</div>
+                <div class="game-info">
+                    <h2 class="game-title">Breakout</h2>
+                    <p class="game-description">パドルでボールを打ち返し、上部のブロックをすべて壊すアーケードゲーム</p>
+                    <div class="game-tags">
+                        <span class="tag">Arcade</span>
+                        <span class="tag">Action</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="flappy.html" class="game-card">
+                <div class="game-preview">🐦</div>
+                <div class="game-info">
+                    <h2 class="game-title">Flappy Bird</h2>
+                    <p class="game-description">タップで鳥を羽ばたかせ、土管の間を通り抜けていくシンプルアクション</p>
+                    <div class="game-tags">
+                        <span class="tag">Arcade</span>
+                        <span class="tag">Casual</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="typing.html" class="game-card">
+                <div class="game-preview">⌨️</div>
+                <div class="game-info">
+                    <h2 class="game-title">Typing</h2>
+                    <p class="game-description">表示される単語を素早くタイプして、タイピングスキルを磨こう</p>
+                    <div class="game-tags">
+                        <span class="tag">Skill</span>
+                        <span class="tag">Speed</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="maze.html" class="game-card">
+                <div class="game-preview">🧩</div>
+                <div class="game-info">
+                    <h2 class="game-title">Maze</h2>
+                    <p class="game-description">自動生成される迷路をできるだけ速くゴールまで辿り着こう</p>
+                    <div class="game-tags">
+                        <span class="tag">Puzzle</span>
+                        <span class="tag">Navigation</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="shooting.html" class="game-card">
+                <div class="game-preview">🚀</div>
+                <div class="game-info">
+                    <h2 class="game-title">Shooting</h2>
+                    <p class="game-description">迫り来る敵を撃ち落とし、Wave を重ねてハイスコアを目指せ</p>
+                    <div class="game-tags">
+                        <span class="tag">Arcade</span>
+                        <span class="tag">Action</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <p>Built with vanilla HTML, CSS & JavaScript</p>
+        </footer>
+    </div>
+</body>
+</html>

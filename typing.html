@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #faf9f7;
+            --surface: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #8a8a8a;
+            --text-tertiary: #c0c0c0;
+            --border: #e8e6e3;
+            --accent: #7eb88a;
+            --error: #d4908a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            display: flex;
+            gap: 3rem;
+            align-items: flex-start;
+        }
+
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 0 0.25rem;
+        }
+
+        .title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .wpm-inline {
+            font-size: 0.875rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .board-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            width: 520px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .word-display {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .word .typed {
+            color: var(--accent);
+        }
+
+        .word .current {
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--text-primary);
+        }
+
+        .word .remaining {
+            color: var(--text-tertiary);
+        }
+
+        .word .error {
+            color: var(--error);
+            background: rgba(212, 144, 138, 0.15);
+            border-radius: 2px;
+        }
+
+        #typingInput {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            outline: none;
+            background: var(--bg);
+            color: var(--text-primary);
+            transition: border-color 0.2s ease;
+        }
+
+        #typingInput:focus {
+            border-color: var(--accent);
+        }
+
+        #typingInput.error {
+            border-color: var(--error);
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .input-hint {
+            font-size: 0.5rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            margin-top: 0.75rem;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            min-width: 120px;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .panel-label {
+            font-size: 0.625rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 300;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .time-select {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .time-btn {
+            font-family: inherit;
+            font-size: 0.625rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-btn.active {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .time-btn:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 0.625rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        .hint {
+            font-size: 0.5rem;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(250, 249, 247, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .overlay-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .overlay-score {
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .overlay-label {
+            font-size: 0.625rem;
+            color: var(--text-tertiary);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .result-row {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-item {
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+        .result-label {
+            font-size: 0.5rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .overlay-btn {
+            font-family: inherit;
+            font-size: 0.625rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .overlay-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .overlay-message {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: particleFade 0.5s ease forwards;
+        }
+
+        @keyframes particleFade {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0) translateY(-20px); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 2rem;
+                align-items: center;
+            }
+            .board-container {
+                width: 100%;
+                max-width: 520px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-wrapper">
+            <div class="header">
+                <span class="title">Typing</span>
+                <span class="wpm-inline"><span id="wpmInline">0</span> wpm</span>
+            </div>
+            <div class="board-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+
+                <div class="word-display">
+                    <div class="word" id="wordDisplay"></div>
+                </div>
+
+                <input type="text" id="typingInput" placeholder="Type here..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+                <p class="input-hint">Press Enter to submit word</p>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="panel-section">
+                <span class="panel-label">WPM</span>
+                <span class="stat-value" id="wpm">0</span>
+            </div>
+
+            <div class="panel-section">
+                <span class="panel-label">Accuracy</span>
+                <span class="stat-value"><span id="accuracy">100</span>%</span>
+            </div>
+
+            <div class="panel-section">
+                <span class="panel-label">Time</span>
+                <span class="stat-value"><span id="timer">60</span>s</span>
+            </div>
+
+            <div class="panel-section">
+                <span class="panel-label">Duration</span>
+                <div class="time-select">
+                    <button class="time-btn" data-time="30">30 sec</button>
+                    <button class="time-btn active" data-time="60">60 sec</button>
+                    <button class="time-btn" data-time="120">2 min</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <button class="btn" id="resetBtn">Reset</button>
+            </div>
+
+            <div class="panel-section">
+                <span class="panel-label">Controls</span>
+                <p class="hint">
+                    Type the word shown<br>
+                    Enter to submit
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+        <p class="overlay-title">Typing Test</p>
+        <p class="overlay-label">Test your typing speed</p>
+        <button class="overlay-btn" id="startBtn">Start</button>
+    </div>
+
+    <div class="overlay hidden" id="resultOverlay">
+        <p class="overlay-title">Results</p>
+        <div class="overlay-score" id="resultWpm">0</div>
+        <p class="overlay-label">Words per minute</p>
+
+        <div class="result-row">
+            <div class="result-item">
+                <div class="result-value" id="resultAccuracy">100</div>
+                <div class="result-label">Accuracy %</div>
+            </div>
+            <div class="result-item">
+                <div class="result-value" id="resultWords">0</div>
+                <div class="result-label">Words</div>
+            </div>
+        </div>
+
+        <p class="overlay-message" id="resultMessage">Great job!</p>
+        <button class="overlay-btn" id="retryBtn">Try Again</button>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <script>
+        // Extended words list
+        const words = [
+            // Common words
+            'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it',
+            'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this',
+            'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or',
+            'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so',
+            'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when',
+            'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people',
+            'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than',
+            'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back',
+            'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even',
+            'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us',
+            // Tech words
+            'code', 'data', 'file', 'system', 'user', 'program', 'function', 'class', 'object', 'array',
+            'string', 'number', 'boolean', 'variable', 'constant', 'method', 'return', 'value', 'type', 'loop',
+            'while', 'break', 'switch', 'case', 'default', 'import', 'export', 'module', 'package', 'library',
+            'framework', 'component', 'interface', 'abstract', 'static', 'public', 'private', 'async', 'await', 'promise',
+            'callback', 'event', 'handler', 'listener', 'request', 'response', 'server', 'client', 'database', 'query',
+            'table', 'column', 'index', 'key', 'foreign', 'primary', 'unique', 'null', 'undefined', 'error',
+            'debug', 'test', 'build', 'deploy', 'version', 'branch', 'merge', 'commit', 'push', 'pull',
+            'clone', 'fetch', 'remote', 'origin', 'master', 'main', 'feature', 'release', 'hotfix', 'patch',
+            // Design words
+            'design', 'layout', 'style', 'color', 'font', 'size', 'width', 'height', 'margin', 'padding',
+            'border', 'radius', 'shadow', 'gradient', 'image', 'icon', 'button', 'input', 'form', 'label',
+            'text', 'title', 'header', 'footer', 'sidebar', 'content', 'section', 'article', 'navigation', 'menu',
+            'link', 'list', 'item', 'card', 'modal', 'popup', 'tooltip', 'dropdown', 'slider', 'toggle',
+            // Nature words
+            'water', 'fire', 'earth', 'wind', 'storm', 'rain', 'snow', 'cloud', 'sun', 'moon',
+            'star', 'sky', 'ocean', 'river', 'lake', 'mountain', 'forest', 'tree', 'flower', 'grass',
+            'bird', 'fish', 'animal', 'plant', 'stone', 'sand', 'wave', 'light', 'dark', 'shadow',
+            // Action words
+            'run', 'walk', 'jump', 'fly', 'swim', 'climb', 'fall', 'rise', 'grow', 'shrink',
+            'open', 'close', 'start', 'stop', 'begin', 'end', 'create', 'destroy', 'build', 'break',
+            'send', 'receive', 'give', 'take', 'hold', 'drop', 'push', 'pull', 'move', 'stay',
+            'read', 'write', 'speak', 'listen', 'watch', 'look', 'see', 'hear', 'feel', 'touch',
+            'think', 'learn', 'teach', 'study', 'practice', 'improve', 'change', 'grow', 'develop', 'evolve',
+            // Adjectives
+            'quick', 'slow', 'fast', 'small', 'large', 'tiny', 'huge', 'short', 'long', 'wide',
+            'narrow', 'deep', 'shallow', 'high', 'low', 'bright', 'dark', 'light', 'heavy', 'soft',
+            'hard', 'smooth', 'rough', 'wet', 'dry', 'hot', 'cold', 'warm', 'cool', 'fresh',
+            'clean', 'dirty', 'clear', 'cloudy', 'simple', 'complex', 'easy', 'difficult', 'safe', 'dangerous',
+            'quiet', 'loud', 'silent', 'noisy', 'calm', 'wild', 'gentle', 'fierce', 'sweet', 'bitter',
+            // More common words
+            'world', 'life', 'hand', 'part', 'child', 'place', 'problem', 'school', 'state', 'family',
+            'student', 'group', 'country', 'point', 'week', 'company', 'system', 'program', 'question', 'word',
+            'number', 'night', 'morning', 'side', 'kind', 'head', 'house', 'service', 'friend', 'father',
+            'power', 'hour', 'game', 'line', 'political', 'end', 'member', 'law', 'car', 'city',
+            'community', 'name', 'president', 'team', 'minute', 'idea', 'kid', 'body', 'information', 'nothing',
+            'right', 'story', 'lot', 'young', 'old', 'away', 'still', 'possible', 'sure', 'room',
+            'fact', 'month', 'book', 'eye', 'job', 'word', 'business', 'issue', 'door', 'try',
+            'moment', 'face', 'thing', 'man', 'woman', 'boy', 'girl', 'love', 'music', 'art'
+        ];
+
+        // DOM elements
+        const wordDisplay = document.getElementById('wordDisplay');
+        const typingInput = document.getElementById('typingInput');
+        const wpmEl = document.getElementById('wpm');
+        const wpmInlineEl = document.getElementById('wpmInline');
+        const accuracyEl = document.getElementById('accuracy');
+        const timerEl = document.getElementById('timer');
+        const progressEl = document.getElementById('progress');
+        const startOverlay = document.getElementById('startOverlay');
+        const resultOverlay = document.getElementById('resultOverlay');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const timeBtns = document.querySelectorAll('.time-btn');
+        const particlesContainer = document.getElementById('particles');
+        const resultWpmEl = document.getElementById('resultWpm');
+        const resultAccuracyEl = document.getElementById('resultAccuracy');
+        const resultWordsEl = document.getElementById('resultWords');
+        const resultMessageEl = document.getElementById('resultMessage');
+
+        // Audio
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'key') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600 + Math.random() * 200, now);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                osc.start(now);
+                osc.stop(now + 0.04);
+            } else if (type === 'word') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523, now);
+                osc.frequency.setValueAtTime(659, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'error') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, now);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'complete') {
+                const notes = [523, 659, 784, 1047];
+                notes.forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(freq, now + i * 0.1);
+                    g.gain.setValueAtTime(0.08, now + i * 0.1);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.25);
+                    o.start(now + i * 0.1);
+                    o.stop(now + i * 0.1 + 0.25);
+                });
+            }
+        }
+
+        // Game state
+        let gameTime = 60;
+        let timeLeft = 60;
+        let gameStarted = false;
+        let timerInterval = null;
+        let currentWordIndex = 0;
+        let wordQueue = [];
+        let correctChars = 0;
+        let totalChars = 0;
+        let wordsCompleted = 0;
+
+        function generateWords(count) {
+            const result = [];
+            const usedIndices = new Set();
+            while (result.length < count) {
+                const idx = Math.floor(Math.random() * words.length);
+                if (!usedIndices.has(idx) || usedIndices.size >= words.length / 2) {
+                    result.push(words[idx]);
+                    usedIndices.add(idx);
+                }
+            }
+            return result;
+        }
+
+        function getCurrentWord() {
+            return wordQueue[currentWordIndex] || '';
+        }
+
+        function updateWordDisplay() {
+            const word = getCurrentWord();
+            const typed = typingInput.value;
+            let html = '';
+
+            for (let i = 0; i < word.length; i++) {
+                if (i < typed.length) {
+                    if (typed[i] === word[i]) {
+                        html += `<span class="typed">${word[i]}</span>`;
+                    } else {
+                        html += `<span class="error">${word[i]}</span>`;
+                    }
+                } else if (i === typed.length) {
+                    html += `<span class="current">${word[i]}</span>`;
+                } else {
+                    html += `<span class="remaining">${word[i]}</span>`;
+                }
+            }
+
+            wordDisplay.innerHTML = html;
+        }
+
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.width = (Math.random() * 6 + 3) + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.background = ['#7eb88a', '#d4a574', '#7eb8c9'][Math.floor(Math.random() * 3)];
+            particlesContainer.appendChild(particle);
+            setTimeout(() => particle.remove(), 500);
+        }
+
+        function submitWord() {
+            const typed = typingInput.value.trim();
+            const word = getCurrentWord();
+
+            if (typed.length === 0) return;
+
+            // Calculate correct characters
+            for (let i = 0; i < Math.max(typed.length, word.length); i++) {
+                totalChars++;
+                if (i < typed.length && i < word.length && typed[i] === word[i]) {
+                    correctChars++;
+                }
+            }
+
+            if (typed === word) {
+                playSound('word');
+                wordsCompleted++;
+
+                // Create particles
+                const rect = wordDisplay.getBoundingClientRect();
+                for (let i = 0; i < 5; i++) {
+                    createParticle(
+                        rect.left + rect.width / 2 + (Math.random() - 0.5) * 80,
+                        rect.top + rect.height / 2
+                    );
+                }
+            } else {
+                playSound('error');
+            }
+
+            // Next word
+            currentWordIndex++;
+            typingInput.value = '';
+
+            if (currentWordIndex >= wordQueue.length - 3) {
+                wordQueue = wordQueue.concat(generateWords(15));
+            }
+
+            updateWordDisplay();
+            updateStats();
+        }
+
+        function updateStats() {
+            const timeElapsed = gameTime - timeLeft;
+            const minutes = timeElapsed / 60;
+
+            const wpm = minutes > 0 ? Math.round((wordsCompleted) / minutes) : 0;
+            wpmEl.textContent = wpm;
+            wpmInlineEl.textContent = wpm;
+
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            accuracyEl.textContent = accuracy;
+
+            const progress = ((gameTime - timeLeft) / gameTime) * 100;
+            progressEl.style.width = progress + '%';
+        }
+
+        function startGame() {
+            gameStarted = true;
+            timeLeft = gameTime;
+            currentWordIndex = 0;
+            wordQueue = generateWords(25);
+            correctChars = 0;
+            totalChars = 0;
+            wordsCompleted = 0;
+
+            typingInput.value = '';
+            typingInput.focus();
+            updateWordDisplay();
+            updateStats();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                updateStats();
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameStarted = false;
+            clearInterval(timerInterval);
+
+            playSound('complete');
+
+            const minutes = gameTime / 60;
+            const wpm = Math.round(wordsCompleted / minutes);
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+
+            resultWpmEl.textContent = wpm;
+            resultAccuracyEl.textContent = accuracy;
+            resultWordsEl.textContent = wordsCompleted;
+
+            if (wpm >= 70 && accuracy >= 95) {
+                resultMessageEl.textContent = 'Incredible typing skills!';
+            } else if (wpm >= 50 && accuracy >= 90) {
+                resultMessageEl.textContent = 'Excellent work!';
+            } else if (wpm >= 35 && accuracy >= 85) {
+                resultMessageEl.textContent = 'Good job!';
+            } else {
+                resultMessageEl.textContent = 'Keep practicing!';
+            }
+
+            resultOverlay.classList.remove('hidden');
+        }
+
+        function resetGame() {
+            gameStarted = false;
+            clearInterval(timerInterval);
+            timeLeft = gameTime;
+            timerEl.textContent = timeLeft;
+            currentWordIndex = 0;
+            wordQueue = generateWords(25);
+            correctChars = 0;
+            totalChars = 0;
+            wordsCompleted = 0;
+
+            typingInput.value = '';
+            wpmEl.textContent = '0';
+            wpmInlineEl.textContent = '0';
+            accuracyEl.textContent = '100';
+            progressEl.style.width = '0%';
+            updateWordDisplay();
+        }
+
+        // Event listeners
+        typingInput.addEventListener('input', (e) => {
+            if (!gameStarted) return;
+
+            initAudio();
+            const typed = typingInput.value;
+            const word = getCurrentWord();
+
+            if (typed.length > 0) {
+                const lastChar = typed[typed.length - 1];
+                const expectedChar = word[typed.length - 1];
+
+                if (lastChar === expectedChar) {
+                    playSound('key');
+                    typingInput.classList.remove('error');
+                } else if (typed.length <= word.length) {
+                    typingInput.classList.add('error');
+                    setTimeout(() => typingInput.classList.remove('error'), 200);
+                }
+            }
+
+            updateWordDisplay();
+        });
+
+        typingInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (gameStarted) {
+                    submitWord();
+                }
+            }
+
+            if (!gameStarted && e.key !== 'Tab' && e.key !== 'Enter') {
+                initAudio();
+                startOverlay.classList.add('hidden');
+                startGame();
+            }
+        });
+
+        timeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (gameStarted) return;
+                timeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                gameTime = parseInt(btn.dataset.time);
+                timeLeft = gameTime;
+                timerEl.textContent = timeLeft;
+            });
+        });
+
+        startBtn.addEventListener('click', () => {
+            initAudio();
+            startOverlay.classList.add('hidden');
+            typingInput.focus();
+            startGame();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            resultOverlay.classList.add('hidden');
+            resetGame();
+            typingInput.focus();
+        });
+
+        retryBtn.addEventListener('click', () => {
+            resultOverlay.classList.add('hidden');
+            resetGame();
+            startGame();
+        });
+
+        // Initialize
+        wordQueue = generateWords(25);
+        updateWordDisplay();
+    </script>
+</body>
+</html>
